@@ -1,0 +1,76 @@
+/* Container styles */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #f3f4f6;
+    padding: 20px;
+  }
+  
+  /* Card styles */
+  .card {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    transition: transform 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+  }
+  
+  /* Avatar styles */
+  .avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 1rem;
+  }
+  
+  /* Username link */
+  .username a {
+    text-decoration: none;
+    color: #0366d6;
+    font-weight: bold;
+  }
+  
+  /* Logout button */
+  .logout-btn {
+    margin-top: 20px;
+    padding: 0.8rem 1.5rem;
+    background-color: #d73a49;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .logout-btn:hover {
+    background-color: #b3273a;
+  }
+  
+  /* Responsive */
+  @media (max-width: 500px) {
+    .card {
+      padding: 1.5rem;
+    }
+  
+    .avatar {
+      width: 100px;
+      height: 100px;
+    }
+  
+    .logout-btn {
+      font-size: 0.9rem;
+      padding: 0.7rem 1.2rem;
+    }
+  }
+  

@@ -1,0 +1,13 @@
+<div class="container" *ngIf="userData">
+    <div class="card">
+      <img [src]="userData.avatar_url" alt="User Avatar" class="avatar" />
+      <h2>{{ userData.name || userData.login }}</h2>
+      <p class="username">
+        <a [href]="userData.html_url" target="_blank">{{ userData.login }}</a>
+      </p>
+      <button (click)="logout()" class="logout-btn">
+        Logout
+      </button>
+    </div>
+  </div>
+  
