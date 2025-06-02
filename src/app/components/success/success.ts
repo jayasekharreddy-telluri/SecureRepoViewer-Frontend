@@ -1,46 +1,107 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
+import { RepoDto } from '../../models/repo.dto';
+import { SuccessSer } from '../../services/success-ser.service';
+
+
 
 @Component({
   selector: 'app-success',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, HttpClientModule, FormsModule],
   templateUrl: './success.html',
   styleUrls: ['./success.css']
 })
 export class Success implements OnInit {
-  userData: any = null;
+  shareId: string = '';
+  userLogin: string = '';
+  avatarUrl: string = '';
+  searchTerm: string = '';
+  filteredRepos: RepoDto[] = [];
+  selectedRepo: RepoDto | null = null;
+  isLoading: boolean = false;
+  repos: RepoDto[] = [];
 
-  constructor(private router: Router, private route: ActivatedRoute) {}
+  constructor(
+    private route: ActivatedRoute,
+    private successSer: SuccessSer
+  ) {}
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      const login = params['login'];
-      const avatar_url = params['avatar'];
-      const name = params['name'];
-
-      if (login && avatar_url) {
-        this.userData = {
-          login: login,
-          avatar_url: decodeURIComponent(avatar_url),
-          name: name || login,
-          html_url: `https://github.com/${login}`
-        };
-      } else {
-        this.router.navigate(['/login']);
+      const shareId = params['shareId'];
+      if (shareId) {
+        this.shareId = shareId;
+        this.fetchUserData(shareId);
       }
     });
   }
 
-  logout(): void {
-    // 1. Open GitHub logout page in a new tab
-    window.open('https://github.com/logout', '_blank');
+  fetchUserData(shareId: string): void {
+    this.successSer.getSharedRepo(shareId).subscribe({
+      next: data => {
+        if (!data.repoOwner || !data.avatarUrl || !data.repos) return;
 
-    // 2. Clear user data from the app
-    this.userData = null;
+        this.userLogin = data.repoOwner;
+        this.avatarUrl = data.avatarUrl;
+        this.repos = Object.entries(data.repos).map(([name, url]) => ({
+          name,
+          url: url as string
+        }));
+      },
+      error: err => {
+        console.error('❌ API call failed:', err);
+      }
+    });
+  }
 
-    // 3. Navigate to login page
-    this.router.navigate(['/login']);
+  onInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const query = input.value.trim();
+    this.searchTerm = query;
+    this.selectedRepo = null;
+
+    if (!query) {
+      this.filteredRepos = [];
+      return;
+    }
+
+    this.isLoading = true;
+
+    this.successSer.searchRepos(query, this.shareId).subscribe({
+      next: results => {
+        this.filteredRepos = results;
+        this.isLoading = false;
+      },
+      error: err => {
+        console.error('Search error:', err);
+        this.filteredRepos = [];
+        this.isLoading = false;
+      }
+    });
+  }
+
+  selectRepo(repo: RepoDto): void {
+    this.selectedRepo = repo;
+    this.filteredRepos = [];
+    this.searchTerm = repo.name;
+  }
+
+  copyToClipboard(url: string): void {
+    navigator.clipboard.writeText(url).then(() => {
+      alert('URL copied to clipboard!');
+    }).catch(err => {
+      console.error('Copy failed:', err);
+      alert('Failed to copy URL.');
+    });
+  }
+
+  resetSelection(): void {
+    this.selectedRepo = null;
+    this.searchTerm = '';
+    this.filteredRepos = [];
   }
 }

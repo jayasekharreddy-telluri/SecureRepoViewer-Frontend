@@ -1,76 +1,180 @@
-/* Container styles */
+/* Root container styling: full height, smooth gradient background */
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #fff;
+  box-sizing: border-box;
+}
+
+/* User Info Card */
+div[ng-reflect-ng-if="true"] {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 30px 40px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  max-width: 360px;
+  width: 90%;
+  text-align: center;
+  margin-bottom: 40px;
+  backdrop-filter: blur(8px);
+}
+
+/* Welcome text */
+h2 {
+  margin-bottom: 15px;
+  font-weight: 700;
+  font-size: 1.9rem;
+  letter-spacing: 0.05em;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
+}
+
+
+
+/* Loading message */
+div[ng-reflect-ng-if="false"] p {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 40px;
+  text-align: center;
+  color: #e0e0e0;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+}
+
+/* Main container for search & results */
 .container {
-    display: flex;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 15px;
+  max-width: 600px;
+  width: 90%;
+  padding: 25px 30px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+  backdrop-filter: blur(6px);
+}
+
+/* Search box wrapper */
+.search-box {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Search input styling */
+.search-box input[type="text"] {
+  flex: 1 1 300px;
+  padding: 12px 18px;
+  border-radius: 8px;
+  border: none;
+  font-size: 1.1rem;
+  outline: none;
+  transition: box-shadow 0.3s ease;
+}
+
+.search-box input[type="text"]:focus {
+  box-shadow: 0 0 8px #764ba2;
+}
+
+/* Buttons next to input */
+.buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.buttons button {
+  background: #764ba2;
+  border: none;
+  padding: 11px 18px;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.buttons button:hover {
+  background: #5a347a;
+}
+
+/* Reset button style */
+.buttons button.reset {
+  background: #ff5e57;
+}
+
+.buttons button.reset:hover {
+  background: #cc4943;
+}
+
+/* Spinner (simple CSS animation) */
+.spinner {
+  margin: 0 auto 20px;
+  width: 35px;
+  height: 35px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Spinner animation */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* No results message */
+.no-results {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #f1c40f;
+  font-weight: 600;
+  margin-bottom: 15px;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+
+/* Repo list styling */
+.repo-list {
+  list-style: none;
+  padding-left: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.repo-list li {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.25s ease;
+  user-select: none;
+}
+
+.repo-list li:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #764ba2;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .search-box {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .buttons {
     justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background: #f3f4f6;
-    padding: 20px;
+    gap: 10px;
+    margin-top: 12px;
   }
-  
-  /* Card styles */
-  .card {
-    background-color: white;
-    padding: 2rem;
-    border-radius: 16px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
+  .buttons button {
     width: 100%;
-    text-align: center;
-    transition: transform 0.3s ease;
   }
-  
-  .card:hover {
-    transform: translateY(-5px);
-  }
-  
-  /* Avatar styles */
-  .avatar {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 1rem;
-  }
-  
-  /* Username link */
-  .username a {
-    text-decoration: none;
-    color: #0366d6;
-    font-weight: bold;
-  }
-  
-  /* Logout button */
-  .logout-btn {
-    margin-top: 20px;
-    padding: 0.8rem 1.5rem;
-    background-color: #d73a49;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.3s ease;
-  }
-  
-  .logout-btn:hover {
-    background-color: #b3273a;
-  }
-  
-  /* Responsive */
-  @media (max-width: 500px) {
-    .card {
-      padding: 1.5rem;
-    }
-  
-    .avatar {
-      width: 100px;
-      height: 100px;
-    }
-  
-    .logout-btn {
-      font-size: 0.9rem;
-      padding: 0.7rem 1.2rem;
-    }
-  }
-  
+}
