@@ -1,1 +1,63 @@
-<p>share works!</p>
+<div class="container">
+  <h2 class="page-title">Create GitHub Viewer Link</h2>
+
+  <form #form="ngForm" (ngSubmit)="createViewerLink(form)" class="create-link-form" novalidate>
+    <div class="form-group">
+      <label for="repoSearch">Search GitHub Repo Name</label>
+      <input
+        id="repoSearch"
+        name="repoSearch"
+        [(ngModel)]="repoSearch"
+        (input)="onSearchChange()"
+        (blur)="validateSelection()"
+        (paste)="blockPaste($event)"
+        placeholder="e.g. my-private-repo"
+        required
+        autocomplete="off"
+        type="text"
+        class="input-field"
+      />
+      <ul *ngIf="suggestions.length" class="suggestions-list">
+        <li *ngFor="let repo of suggestions" (mousedown)="selectRepo(repo)">
+          {{ repo.name }}
+        </li>
+      </ul>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="expiresIn">Expires In (minutes)</label>
+        <input
+          id="expiresIn"
+          name="expiresIn"
+          type="number"
+          [(ngModel)]="expiresIn"
+          required
+          min="1"
+          placeholder="30"
+          class="input-field"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="maxViews">Max Views</label>
+        <input
+          id="maxViews"
+          name="maxViews"
+          type="number"
+          [(ngModel)]="maxViews"
+          required
+          min="1"
+          placeholder="100"
+          class="input-field"
+        />
+      </div>
+    </div>
+
+    <button type="submit" [disabled]="!form.valid" class="submit-btn">
+      Create Viewer Link
+    </button>
+  </form>
+
+ 
+</div>

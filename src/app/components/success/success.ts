@@ -4,9 +4,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RepoDto } from '../../models/repo.dto';
-import { SuccessSer } from '../../services/success-ser.service';
-
-
+import { RepoSearchService } from '../../services/repo-search';
+import { Share } from '../share/share';
 
 @Component({
   selector: 'app-success',
@@ -27,7 +26,7 @@ export class Success implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private successSer: SuccessSer
+    private successSer: RepoSearchService
   ) {}
 
   ngOnInit(): void {

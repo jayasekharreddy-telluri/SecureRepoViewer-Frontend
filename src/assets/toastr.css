@@ -1,0 +1,38 @@
+/* src/assets/toastr.css */
+
+/* Toast container */
+.toast-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Toast base styles */
+.toast {
+  padding: 16px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Success */
+.toast-success {
+  background-color: #28a745;
+  color: white;
+}
+
+/* Error */
+.toast-error {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* Info */
+.toast-info {
+  background-color: #17a2b8;
+  color: white;
+}
+
+/* Warning */
+.toast-warning {
+  background-color: #ffc107;
+  color: black;
+}
