@@ -1,11 +1,23 @@
 import { Component } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-access',
-  imports: [],
+  standalone: true, // <- this is important if you're using Angular standalone components
   templateUrl: './access.html',
-  styleUrl: './access.css'
+  styleUrls: ['./access.css'], // <- 'styleUrls' not 'styleUrl'
+  imports: [] // if needed, you can add CommonModule or others here
 })
 export class Access {
+
+  constructor(private toastr: ToastrService) {}
+
+  showSuccess() {
+    this.toastr.success('Success message', 'Success 🎉');
+  }
+
+  showError() {
+    this.toastr.error('Error message', 'Error ❌');
+  }
 
 }

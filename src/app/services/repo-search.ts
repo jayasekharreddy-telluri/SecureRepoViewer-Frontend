@@ -8,7 +8,7 @@ import { SharedRepoResponse } from '../models/SharedRepoResponse.dto';
 @Injectable({
   providedIn: 'root'
 })
-export class SuccessSer {
+export class RepoSearchService  {
   private baseUrl = 'http://localhost:8080/api';
 
   constructor(private http: HttpClient) {}
