@@ -154,22 +154,43 @@ export class Share {
     }
   });
 }
+currentPage = 0;   // or 1, depending on your backend pagination convention
+pageSize = 5;      // how many rows per page
+totalPages: number = 0;
 
 loadViewerLinks(): void {
-  this.viewerLinkService.getAllViewerLinks().subscribe({
-    next: (links: ViewerLinkDTO[]) => {
-      this.viewerLinks = links.map(link => ({
+  this.viewerLinkService.getViewerLinksPaginated(this.currentPage, this.pageSize).subscribe({
+    next: (paginatedData) => {
+      this.viewerLinks = paginatedData.content.map(link => ({
         ...link,
         expiresAtFormatted: this.safeFormatDate(link.expiresAt),
         url: `http://localhost:4200/access/${link.viewerId}`,
         status: this.isExpired(link) ? 'expired' : 'active',
       }));
+      // You can also store total pages to manage pagination buttons
+      this.totalPages = paginatedData.totalPages;
     },
     error: () => {
       this.toastr.error('Failed to load viewer links.');
     }
   });
 }
+
+goToPreviousPage() {
+  if (this.currentPage > 0) {
+    this.currentPage--;
+    this.loadViewerLinks();  // re-fetch links for the new page
+  }
+}
+
+goToNextPage() {
+  if (this.currentPage + 1 < this.totalPages) {
+    this.currentPage++;
+    this.loadViewerLinks();  // re-fetch links for the new page
+  }
+}
+
+
 
 
 

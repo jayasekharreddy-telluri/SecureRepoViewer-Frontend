@@ -59,14 +59,8 @@
     </button>
   </form>
 
-
-<ng-template #noLinks>
-  <p>No viewer links created yet.</p>
-</ng-template>
-
- 
 </div>
-<div class="viewer-links-container" *ngIf="viewerLinks.length > 0; else noLinks">
+<div class="viewer-links-container" *ngIf="viewerLinks.length > 0; ">
   <div class="viewer-link-row header">
     <div>Repository Name</div>
     <div>Views Left</div>
@@ -91,4 +85,12 @@
       <button title="Delete" (click)="deleteLink()">🗑️</button>
     </div>
   </div>
+
+  <!-- Pagination Controls -->
+  <div class="pagination-controls">
+    <button (click)="goToPreviousPage()" [disabled]="currentPage === 0">Previous</button>
+    <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+    <button (click)="goToNextPage()" [disabled]="currentPage + 1 >= totalPages">Next</button>
+  </div>
 </div>
+

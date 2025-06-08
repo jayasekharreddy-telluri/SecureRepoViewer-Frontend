@@ -9,6 +9,7 @@ import { SuccessDTO } from '../models/viewer-link/success-dto';
 import { ViewerLinkAccessDTO } from '../models/viewer-link/viewer-link-access-dto';
 import { ViewerLinkContentResponse } from '../models/viewer-link/viewer-link-content-response';
 import { ViewerLinkDTO } from '../models/viewer-link/viewer-link-dto';
+import { PaginatedViewerLinks } from '../models/viewer-link/paginated-viewer-links ';
 
 
 @Injectable({
@@ -46,7 +47,8 @@ export class ViewerLinkService {
   }
 
   // Get all viewer links
-  getAllViewerLinks(): Observable<ViewerLinkDTO[]> {
-    return this.http.get<ViewerLinkDTO[]>(`${this.baseUrl}`);
-  }
+  
+  getViewerLinksPaginated(page: number, size: number): Observable<PaginatedViewerLinks> {
+  return this.http.get<PaginatedViewerLinks>(`${this.baseUrl}?page=${page}&size=${size}`);
+}
 }
