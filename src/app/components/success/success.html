@@ -1,13 +1,45 @@
-<div class="container" *ngIf="userData">
-    <div class="card">
-      <img [src]="userData.avatar_url" alt="User Avatar" class="avatar" />
-      <h2>{{ userData.name || userData.login }}</h2>
-      <p class="username">
-        <a [href]="userData.html_url" target="_blank">{{ userData.login }}</a>
-      </p>
-      <button (click)="logout()" class="logout-btn">
-        Logout
-      </button>
+<div *ngIf="userLogin">
+  <h2>Welcome, {{ userLogin }}!</h2>
+
+</div>
+
+<div *ngIf="!userLogin">
+  <p>Loading user data...</p>
+</div>
+
+<div class="container">
+  
+
+  <!-- Search Box -->
+  <div class="search-box">
+    <input
+      type="text"
+      [(ngModel)]="searchTerm"
+      (input)="onInput($event)"
+      placeholder="🔍 Search repositories..."
+    />
+
+    <div class="buttons" *ngIf="selectedRepo">
+      <button (click)="copyToClipboard(selectedRepo.url)">📋 Copy URL</button>
+      <button class="reset" (click)="resetSelection()">🔄 Reset</button>
     </div>
   </div>
-  
+
+  <!-- Loading Spinner -->
+  <div class="spinner" *ngIf="isLoading"></div>
+
+  <!-- No Results -->
+  <div
+    class="no-results"
+    *ngIf="!isLoading && !selectedRepo && filteredRepos.length === 0 && searchTerm"
+  >
+    No repositories found.
+  </div>
+
+  <!-- Repo List -->
+  <ul class="repo-list" *ngIf="!selectedRepo && filteredRepos.length > 0">
+    <li *ngFor="let repo of filteredRepos" (click)="selectRepo(repo)">
+      {{ repo.name }}
+    </li>
+  </ul>
+</div>
