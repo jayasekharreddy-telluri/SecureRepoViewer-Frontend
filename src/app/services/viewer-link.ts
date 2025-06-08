@@ -20,9 +20,9 @@ export class ViewerLinkService {
   constructor(private http: HttpClient) {}
 
   // Create a new viewer link
-  createViewerLink(payload: ViewerLinkRequest): Observable<ViewerLinkViewResponse | ErrorDTO> {
+  createViewerLink(payload: ViewerLinkRequest): Observable<SuccessDTO | ErrorDTO> {
     
-    return this.http.post<ViewerLinkViewResponse | ErrorDTO>(`${this.baseUrl}/create`, payload);
+    return this.http.post<SuccessDTO | ErrorDTO>(`${this.baseUrl}/create`, payload);
   }
 
   // Update an existing viewer link

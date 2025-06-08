@@ -11,6 +11,7 @@ import { ViewerLinkDTO } from '../../models/viewer-link/viewer-link-dto';
 import { ViewerLinkRequest } from '../../models/viewer-link/viewer-link-request';
 import { ViewerLinkViewResponse } from '../../models/viewer-link/viewer-link-view-response';
 import { ErrorDTO } from '../../models/viewer-link/error-dto';
+import { SuccessDTO } from '../../models/viewer-link/success-dto';
 
 @Component({
   selector: 'app-share',
@@ -53,21 +54,7 @@ export class Share {
     });
   }
 
-  loadViewerLinks(): void {
-    this.viewerLinkService.getAllViewerLinks().subscribe({
-      next: (links: ViewerLinkDTO[]) => {
-        this.viewerLinks = links.map(link => ({
-          ...link,
-          expiresAtFormatted: this.safeFormatDate(link.expiresAt),
-          url: `http://localhost:4200/access/${link.viewerId}`,
-          status: this.isExpired(link) ? 'expired' : 'active',
-        }));
-      },
-      error: () => {
-        this.toastr.error('Failed to load viewer links.');
-      }
-    });
-  }
+  
 
   safeFormatDate(dateStr: string): string {
     const date = new Date(dateStr);
@@ -125,60 +112,83 @@ export class Share {
   }
 
   createViewerLink(form: NgForm): void {
-    if (!form.valid || !this.selectedRepo || this.maxViews === null || this.expiresIn === null) {
-      this.toastr.error('Fill all fields and select a repo from suggestions.', 'Validation Error');
-      return;
-    }
-
-    // Extra validation to prevent submitting invalid input
-    if (this.repoSearch !== this.selectedRepo.name) {
-      this.toastr.error('Please select a repository from the suggestions list.', 'Validation Error');
-      return;
-    }
-
-    const payload: ViewerLinkRequest = {
-      repoUrl: this.repoName,
-      shareId: this.shareId,
-      maxViews: this.maxViews,
-      expiresInMinutes: this.expiresIn
-    };
-
-    this.viewerLinkService.createViewerLink(payload).subscribe({
-      next: (response: ErrorDTO | ViewerLinkViewResponse) => {
-        if ('viewerUrl' in response) {
-          // Success response
-          const newLink: ViewerLinkDTO = {
-            viewerId: this.extractViewerId(response.viewerUrl),
-            repoUrl: this.repoName,
-            viewsLeft: response.maxViews,
-            maxViews: response.maxViews,
-            expiresAt: response.expiresAt,
-            status: this.isExpired(response) ? 'expired' : 'active',
-            viewerUrl: response.viewerUrl
-          };
-
-          this.viewerLinks.unshift(newLink);
-          this.repoSearch = '';
-          this.repoName = '';
-          this.expiresIn = null;
-          this.maxViews = null;
-          this.selectedRepo = null;
-          this.toastr.success('Viewer link created successfully!', 'Success');
-          form.resetForm();
-        } else if ('error' in response) {
-          this.toastr.error(response.error, 'Error');
-        } else {
-          this.toastr.error('Unexpected response from server', 'Error');
-        }
-      },
-      error: (err) => {
-        this.toastr.error(err.error?.error || 'Failed to create viewer link.', 'Error');
-      }
-    });
+  if (!form.valid || !this.selectedRepo || this.maxViews === null || this.expiresIn === null) {
+    this.toastr.error('Fill all fields and select a repo from suggestions.', 'Validation Error');
+    return;
   }
 
-  extractViewerId(url: string): string {
-    const parts = url.split('/');
-    return parts[parts.length - 1];
+  if (this.repoSearch !== this.selectedRepo.name) {
+    this.toastr.error('Please select a repository from the suggestions list.', 'Validation Error');
+    return;
+  }
+
+  const payload: ViewerLinkRequest = {
+    repoUrl: this.repoName,
+    shareId: this.shareId,
+    maxViews: this.maxViews,
+    expiresInMinutes: this.expiresIn
+  };
+
+  this.viewerLinkService.createViewerLink(payload).subscribe({
+    next: (response: SuccessDTO | ErrorDTO) => {
+      if ('message' in response) {
+        // Success case
+        this.toastr.success(response.message, 'Success');
+        form.resetForm();
+        this.repoSearch = '';
+        this.repoName = '';
+        this.expiresIn = null;
+        this.maxViews = null;
+        this.selectedRepo = null;
+
+        // Reload viewer links from backend to sync UI
+        this.loadViewerLinks();
+      } else if ('error' in response) {
+        this.toastr.error(response.error, 'Error');
+      } else {
+        this.toastr.error('Unexpected response from server', 'Error');
+      }
+    },
+    error: (err) => {
+      this.toastr.error(err.error?.error || 'Failed to create viewer link.', 'Error');
+    }
+  });
+}
+
+loadViewerLinks(): void {
+  this.viewerLinkService.getAllViewerLinks().subscribe({
+    next: (links: ViewerLinkDTO[]) => {
+      this.viewerLinks = links.map(link => ({
+        ...link,
+        expiresAtFormatted: this.safeFormatDate(link.expiresAt),
+        url: `http://localhost:4200/access/${link.viewerId}`,
+        status: this.isExpired(link) ? 'expired' : 'active',
+      }));
+    },
+    error: () => {
+      this.toastr.error('Failed to load viewer links.');
+    }
+  });
+}
+
+
+
+
+  extractRepoName(url: string): string {
+  const parts = url.split('/');
+  let repoName = parts[parts.length - 1];
+  if (repoName.endsWith('.git')) {
+    repoName = repoName.slice(0, -4); // remove last 4 chars ".git"
+  }
+  return repoName;
+}
+
+  editLink(): void {
+    
+    
+  }
+
+  deleteLink(): void {
+    
   }
 }

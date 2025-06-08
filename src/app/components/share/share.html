@@ -59,5 +59,36 @@
     </button>
   </form>
 
+
+<ng-template #noLinks>
+  <p>No viewer links created yet.</p>
+</ng-template>
+
  
+</div>
+<div class="viewer-links-container" *ngIf="viewerLinks.length > 0; else noLinks">
+  <div class="viewer-link-row header">
+    <div>Repository Name</div>
+    <div>Views Left</div>
+    <div>Expires At</div>
+    <div>Status</div>
+    <div>Viewer URL</div>
+    <div>Actions</div>
+  </div>
+
+  <div class="viewer-link-row" *ngFor="let link of viewerLinks">
+    <div class="repo-name" title="{{ link.repoUrl }}">{{ extractRepoName(link.repoUrl) }}</div>
+    <div>{{ link.viewsLeft }} / {{ link.maxViews }}</div>
+    <div>{{ link.expiresAtFormatted }}</div>
+    <div [ngClass]="{'active-status': link.status === 'active', 'expired-status': link.status === 'expired'}">
+      {{ link.status | titlecase }}
+    </div>
+    <div class="viewer-url">
+      <a [href]="link.viewerUrl" target="_blank" rel="noopener noreferrer">{{ link.viewerUrl }}</a>
+    </div>
+    <div class="actions">
+      <button title="Edit" (click)="editLink()">🖊️</button>
+      <button title="Delete" (click)="deleteLink()">🗑️</button>
+    </div>
+  </div>
 </div>
