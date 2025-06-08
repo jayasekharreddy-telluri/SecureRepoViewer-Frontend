@@ -58,19 +58,37 @@
       Create Viewer Link
     </button>
   </form>
-
 </div>
-<div class="viewer-links-container" *ngIf="viewerLinks.length > 0; ">
+
+<div class="viewer-links-container" *ngIf="filteredLinks.length > 0; else noLinksOrFilterResults">
   <div class="viewer-link-row header">
     <div>Repository Name</div>
     <div>Views Left</div>
     <div>Expires At</div>
-    <div>Status</div>
+
+    <div class="clickable-status-header">
+      <span
+        [class.active]="selectedStatus === 'active'"
+        (click)="setStatusFilter('active')"
+      >
+        ✅ 
+      </span>
+      |
+      <span
+        [class.expired]="selectedStatus === 'expired'"
+        (click)="setStatusFilter('expired')"
+      >
+        ⛔
+      </span>
+      
+  
+    </div>
+
     <div>Viewer URL</div>
     <div>Actions</div>
   </div>
 
-  <div class="viewer-link-row" *ngFor="let link of viewerLinks">
+  <div class="viewer-link-row" *ngFor="let link of filteredLinks">
     <div class="repo-name" title="{{ link.repoUrl }}">{{ extractRepoName(link.repoUrl) }}</div>
     <div>{{ link.viewsLeft }} / {{ link.maxViews }}</div>
     <div>{{ link.expiresAtFormatted }}</div>
@@ -94,3 +112,18 @@
   </div>
 </div>
 
+<ng-template #noLinksOrFilterResults>
+  <div class="no-links-message">
+    <p *ngIf="selectedStatus === 'all'">
+      No viewer links found. Create one above to get started.
+    </p>
+    <p *ngIf="selectedStatus === 'active'">
+      No <strong>active</strong> links found.
+    </p>
+    <p *ngIf="selectedStatus === 'expired'">
+      No <strong>expired</strong> links found.
+    </p>
+
+    <button *ngIf="selectedStatus !== 'all'" (click)="setStatusFilter('all')">Show All</button>
+  </div>
+</ng-template>

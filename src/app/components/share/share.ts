@@ -154,9 +154,13 @@ export class Share {
     }
   });
 }
-currentPage = 0;   // or 1, depending on your backend pagination convention
-pageSize = 5;      // how many rows per page
+
+selectedStatus: 'all' | 'active' | 'expired' = 'all';
+//viewerLinks: ViewerLinkDTO[] = [];
+filteredLinks: ViewerLinkDTO[] = [];  // This is what UI should use for display
 totalPages: number = 0;
+currentPage = 0;
+pageSize = 5;
 
 loadViewerLinks(): void {
   this.viewerLinkService.getViewerLinksPaginated(this.currentPage, this.pageSize).subscribe({
@@ -164,17 +168,34 @@ loadViewerLinks(): void {
       this.viewerLinks = paginatedData.content.map(link => ({
         ...link,
         expiresAtFormatted: this.safeFormatDate(link.expiresAt),
-        url: `http://localhost:4200/access/${link.viewerId}`,
+        viewerUrl: `http://localhost:4200/access/${link.viewerId}`,
         status: this.isExpired(link) ? 'expired' : 'active',
       }));
-      // You can also store total pages to manage pagination buttons
+      
       this.totalPages = paginatedData.totalPages;
+
+      // Apply filter after loading
+      this.applyFilter();
     },
     error: () => {
       this.toastr.error('Failed to load viewer links.');
     }
   });
 }
+
+setStatusFilter(status: 'all' | 'active' | 'expired'): void {
+  this.selectedStatus = status;
+  this.applyFilter();
+}
+
+applyFilter(): void {
+  if (this.selectedStatus === 'all') {
+    this.filteredLinks = [...this.viewerLinks];
+  } else {
+    this.filteredLinks = this.viewerLinks.filter(link => link.status === this.selectedStatus);
+  }
+}
+
 
 goToPreviousPage() {
   if (this.currentPage > 0) {
