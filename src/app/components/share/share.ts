@@ -12,6 +12,7 @@ import { ViewerLinkRequest } from '../../models/viewer-link/viewer-link-request'
 import { ViewerLinkViewResponse } from '../../models/viewer-link/viewer-link-view-response';
 import { ErrorDTO } from '../../models/viewer-link/error-dto';
 import { SuccessDTO } from '../../models/viewer-link/success-dto';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-share',
@@ -166,11 +167,12 @@ loadViewerLinks(): void {
   this.viewerLinkService.getViewerLinksPaginated(this.currentPage, this.pageSize).subscribe({
     next: (paginatedData) => {
       this.viewerLinks = paginatedData.content.map(link => ({
-        ...link,
-        expiresAtFormatted: this.safeFormatDate(link.expiresAt),
-        viewerUrl: `http://localhost:4200/access/${link.viewerId}`,
-        status: this.isExpired(link) ? 'expired' : 'active',
-      }));
+  ...link,
+  viewerId: link.viewerUrl.split('/').pop() || '',
+  expiresAtFormatted: this.safeFormatDate(link.expiresAt),
+  viewerUrl: link.viewerUrl,
+  status: link.status || (this.isExpired(link) ? 'expired' : 'active'),
+}));
       
       this.totalPages = paginatedData.totalPages;
 
@@ -230,7 +232,32 @@ goToNextPage() {
     
   }
 
-  deleteLink(): void {
-    
-  }
+
+deleteLink(viewerId: string): void {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'This will permanently delete the link.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Yes, delete it!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.viewerLinkService.deleteViewerLink(viewerId).subscribe({
+        next: (response) => {
+          if ('message' in response) {
+            this.toastr.success(response.message, 'Deleted');
+            this.loadViewerLinks();
+          } else if ('error' in response) {
+            this.toastr.error(response.error, 'Error');
+          }
+        },
+        error: () => this.toastr.error('Failed to delete viewer link.', 'Error')
+      });
+    }
+  });
+}
+
+
 }
