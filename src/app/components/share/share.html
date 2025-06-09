@@ -95,9 +95,12 @@
     <div [ngClass]="{'active-status': link.status === 'active', 'expired-status': link.status === 'expired'}">
       {{ link.status | titlecase }}
     </div>
+
     <div class="viewer-url">
-      <a [href]="link.viewerUrl" target="_blank" rel="noopener noreferrer">{{ link.viewerUrl }}</a>
-    </div>
+  <a href="#" (click)="onViewerLinkClick(link)" target="_blank" rel="noopener noreferrer">
+    {{ link.viewerUrl }}
+  </a>
+</div>
     <div class="actions">
      <button title="Edit" (click)="editLink(link)">🖊️</button>
      <button title="Delete" (click)="deleteLink(link.viewerId)">🗑️</button>

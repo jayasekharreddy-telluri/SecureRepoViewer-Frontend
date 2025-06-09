@@ -256,13 +256,18 @@ deleteLink(viewerId: string): void {
 
 
 editLink(link: ViewerLinkDTO) {
-  // Assuming expiresAt is a string ISO date, convert to Date
+  if (link.viewsLeft <= 0) {
+    this.toastr.warning("Cannot edit viewer link because views left is zero");
+    return; // Prevent edit dialog from opening
+  }
+
+  // Existing expiration check
   const expiresAtDate = new Date(link.expiresAt);
   const now = new Date();
 
   if (expiresAtDate <= now) {
     this.toastr.warning("Cannot edit expired viewer link");
-    return; // Prevent edit dialog from opening
+    return;
   }
 
   Swal.fire({
@@ -332,6 +337,20 @@ editLink(link: ViewerLinkDTO) {
   });
 }
 
+onViewerLinkClick(link: ViewerLinkDTO) {
+  this.viewerLinkService.getViewerStatus(link.viewerId).subscribe({
+    next: (response) => {
+      if ('viewsLeft' in response) {
+        link.viewsLeft = response.viewsLeft;
+      }
+      // Open the URL you got from backend (like http://localhost:4200/access/6d73fe2e90)
+      window.open(link.viewerUrl, '_blank');
+    },
+    error: () => {
+      this.toastr.error('Failed to update view count or link expired');
+    }
+  });
+}
 
 
 }
