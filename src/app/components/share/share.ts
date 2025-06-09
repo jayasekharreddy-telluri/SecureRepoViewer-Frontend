@@ -256,6 +256,15 @@ deleteLink(viewerId: string): void {
 
 
 editLink(link: ViewerLinkDTO) {
+  // Assuming expiresAt is a string ISO date, convert to Date
+  const expiresAtDate = new Date(link.expiresAt);
+  const now = new Date();
+
+  if (expiresAtDate <= now) {
+    this.toastr.warning("Cannot edit expired viewer link");
+    return; // Prevent edit dialog from opening
+  }
+
   Swal.fire({
     title: 'Edit Viewer Link',
     html: `
