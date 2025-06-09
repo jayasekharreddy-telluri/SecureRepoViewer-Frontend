@@ -99,7 +99,7 @@
       <a [href]="link.viewerUrl" target="_blank" rel="noopener noreferrer">{{ link.viewerUrl }}</a>
     </div>
     <div class="actions">
-      <button title="Edit" (click)="editLink()">🖊️</button>
+     <button title="Edit" (click)="editLink(link)">🖊️</button>
      <button title="Delete" (click)="deleteLink(link.viewerId)">🗑️</button>
 
     </div>

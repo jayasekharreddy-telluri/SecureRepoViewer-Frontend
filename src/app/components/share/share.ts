@@ -13,6 +13,7 @@ import { ViewerLinkViewResponse } from '../../models/viewer-link/viewer-link-vie
 import { ErrorDTO } from '../../models/viewer-link/error-dto';
 import { SuccessDTO } from '../../models/viewer-link/success-dto';
 import Swal from 'sweetalert2';
+import { ViewerLinkUpdateRequest } from '../../models/viewer-link/viewer-link-update-request';
 
 @Component({
   selector: 'app-share',
@@ -216,8 +217,6 @@ goToNextPage() {
 
 
 
-
-
   extractRepoName(url: string): string {
   const parts = url.split('/');
   let repoName = parts[parts.length - 1];
@@ -227,10 +226,6 @@ goToNextPage() {
   return repoName;
 }
 
-  editLink(): void {
-    
-    
-  }
 
 
 deleteLink(viewerId: string): void {
@@ -258,6 +253,76 @@ deleteLink(viewerId: string): void {
     }
   });
 }
+
+
+editLink(link: ViewerLinkDTO) {
+  Swal.fire({
+    title: 'Edit Viewer Link',
+    html: `
+      <input type="number" id="maxViews" class="swal2-input" min="1" placeholder="Max Views" value="${link.maxViews}">
+      <input type="number" id="expiresInMinutes" class="swal2-input" min="1" placeholder="Expires In Minutes (optional)">
+    `,
+    confirmButtonText: 'Update',
+    showCancelButton: true,
+    focusConfirm: false,
+    preConfirm: () => {
+      const popup = Swal.getPopup();
+      const maxViewsInput = popup?.querySelector<HTMLInputElement>('#maxViews');
+      const expiresInput = popup?.querySelector<HTMLInputElement>('#expiresInMinutes');
+
+      if (!maxViewsInput) {
+        Swal.showValidationMessage('Max Views input not found');
+        return;
+      }
+
+      const maxViewsStr = maxViewsInput.value?.trim();
+      const expiresStr = expiresInput?.value?.trim();
+
+      if (!maxViewsStr) {
+        Swal.showValidationMessage('Max Views is required');
+        return;
+      }
+
+      const maxViews = Number(maxViewsStr);
+      if (isNaN(maxViews) || maxViews <= 0) {
+        Swal.showValidationMessage('Max Views must be a positive number');
+        return;
+      }
+
+      let expiresInMinutes: number | null = null;
+      if (expiresStr) {
+        expiresInMinutes = Number(expiresStr);
+        if (isNaN(expiresInMinutes) || expiresInMinutes <= 0) {
+          Swal.showValidationMessage('Expires In Minutes must be a positive number or left blank');
+          return;
+        }
+      }
+
+      return { maxViews, expiresInMinutes };
+    }
+  }).then((result) => {
+    if (result.isConfirmed && result.value) {
+      const payload: ViewerLinkUpdateRequest = {
+        maxViews: result.value.maxViews
+      };
+
+      if (result.value.expiresInMinutes != null) {
+        payload.expiresInMinutes = result.value.expiresInMinutes;
+      }
+
+      this.viewerLinkService.updateViewerLink(link.viewerId, payload).subscribe({
+        next: () => {
+          this.toastr.success("Viewer link updated successfully");
+          this.loadViewerLinks();
+        },
+        error: () => {
+          this.toastr.error("Failed to update viewer link");
+        }
+      });
+    }
+  });
+}
+
 
 
 }
