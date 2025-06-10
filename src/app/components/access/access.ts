@@ -10,14 +10,5 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class Access {
 
-  constructor(private toastr: ToastrService) {}
-
-  showSuccess() {
-    this.toastr.success('Success message', 'Success 🎉');
-  }
-
-  showError() {
-    this.toastr.error('Error message', 'Error ❌');
-  }
-
+  
 }

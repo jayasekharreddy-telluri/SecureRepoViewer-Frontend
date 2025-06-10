@@ -14,6 +14,6 @@ import { MatIconModule } from '@angular/material/icon';
 export class Login {
   loginWithGitHub() {
     // Call your Spring Boot backend to start OAuth flow
-    window.location.href = 'http://localhost:8080/auth/github';
+    window.location.href = 'http://localhost:8080/api/auth/github';
   }
 }

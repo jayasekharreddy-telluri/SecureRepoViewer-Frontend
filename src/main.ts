@@ -1,7 +1,7 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter, Routes } from '@angular/router';
 import { importProvidersFrom } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
 
@@ -11,7 +11,9 @@ import { Access } from './app/components/access/access';
 import { Success } from './app/components/success/success';
 import { Error } from './app/components/error/error';
 import { Login } from './app/components/login/login';
-import { ViewerLinks} from './app/components/viewerlinks/viewerlinks';
+import { ViewerLinks } from './app/components/viewerlinks/viewerlinks';
+
+import { ErrorInterceptor } from './app/interceptors/error.interceptor'; // ✅ Make sure this path is correct
 
 const routes: Routes = [
   { path: '', component: Login },
@@ -20,7 +22,8 @@ const routes: Routes = [
   { path: 'access', component: Access },
   { path: 'success', component: Success },
   { path: 'error', component: Error },
-  { path: 'viewerlinks', component: ViewerLinks} ];
+  { path: 'viewerlinks', component: ViewerLinks }
+];
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -34,6 +37,13 @@ bootstrapApplication(AppComponent, {
       HttpClientModule
     ),
     provideAnimations(),
-    provideRouter(routes)
+    provideRouter(routes),
+    
+    // ✅ Register the interceptor
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ErrorInterceptor,
+      multi: true
+    }
   ]
 }).catch(err => console.error(err));
