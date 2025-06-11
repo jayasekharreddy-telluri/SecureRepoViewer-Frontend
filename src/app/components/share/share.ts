@@ -44,17 +44,30 @@ export class Share {
   ) {}
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-      const shareId = params['shareId'];
-      if (shareId) {
-        this.shareId = shareId;
-        this.toastr.info(`Share ID loaded: ${this.shareId}`, 'Info');
-        this.loadViewerLinks();
+  this.route.queryParams.subscribe(params => {
+    const shareIdFromUrl = params['shareId'];
+
+    if (shareIdFromUrl) {
+      // If URL has new shareId -> overwrite localStorage
+      localStorage.setItem('shareId', shareIdFromUrl);
+      this.shareId = shareIdFromUrl;
+      this.toastr.info(`Share ID loaded from URL: ${this.shareId}`, 'Info');
+    } else {
+      // Else try getting from localStorage
+      const storedShareId = localStorage.getItem('shareId');
+      if (storedShareId) {
+        this.shareId = storedShareId;
+        this.toastr.info(`Share ID loaded from local storage: ${this.shareId}`, 'Info');
       } else {
-        this.toastr.warning('Share ID missing in URL query params!', 'Warning');
+        this.toastr.warning('Share ID missing! Please login again.', 'Warning');
+        return; // 🚫 Stop further action
       }
-    });
-  }
+    }
+
+    // ✅ Now safe to load viewer links
+    this.loadViewerLinks();
+  });
+}
 
   
 
@@ -73,7 +86,7 @@ export class Share {
       return;
     }
 
-    this.repoSearchService.searchRepos(this.repoSearch, this.shareId).subscribe({
+    this.repoSearchService.searchRepos(this.repoSearch).subscribe({
       next: (repos) => this.suggestions = repos,
       error: () => {
         this.suggestions = [];
