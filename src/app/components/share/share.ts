@@ -11,6 +11,9 @@ import { ViewerLinkDTO } from '../../models/viewer-link/viewer-link-dto';
 import { ViewerLinkRequest } from '../../models/viewer-link/viewer-link-request';
 import { ViewerLinkViewResponse } from '../../models/viewer-link/viewer-link-view-response';
 import { ErrorDTO } from '../../models/viewer-link/error-dto';
+import { SuccessDTO } from '../../models/viewer-link/success-dto';
+import Swal from 'sweetalert2';
+import { ViewerLinkUpdateRequest } from '../../models/viewer-link/viewer-link-update-request';
 
 @Component({
   selector: 'app-share',
@@ -41,33 +44,32 @@ export class Share {
   ) {}
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-      const shareId = params['shareId'];
-      if (shareId) {
-        this.shareId = shareId;
-        this.toastr.info(`Share ID loaded: ${this.shareId}`, 'Info');
-        this.loadViewerLinks();
-      } else {
-        this.toastr.warning('Share ID missing in URL query params!', 'Warning');
-      }
-    });
-  }
+  this.route.queryParams.subscribe(params => {
+    const shareIdFromUrl = params['shareId'];
 
-  loadViewerLinks(): void {
-    this.viewerLinkService.getAllViewerLinks().subscribe({
-      next: (links: ViewerLinkDTO[]) => {
-        this.viewerLinks = links.map(link => ({
-          ...link,
-          expiresAtFormatted: this.safeFormatDate(link.expiresAt),
-          url: `http://localhost:4200/access/${link.viewerId}`,
-          status: this.isExpired(link) ? 'expired' : 'active',
-        }));
-      },
-      error: () => {
-        this.toastr.error('Failed to load viewer links.');
+    if (shareIdFromUrl) {
+      // If URL has new shareId -> overwrite localStorage
+      localStorage.setItem('shareId', shareIdFromUrl);
+      this.shareId = shareIdFromUrl;
+      this.toastr.info(`Share ID loaded from URL: ${this.shareId}`, 'Info');
+    } else {
+      // Else try getting from localStorage
+      const storedShareId = localStorage.getItem('shareId');
+      if (storedShareId) {
+        this.shareId = storedShareId;
+        this.toastr.info(`Share ID loaded from local storage: ${this.shareId}`, 'Info');
+      } else {
+        this.toastr.warning('Share ID missing! Please login again.', 'Warning');
+        return; // 🚫 Stop further action
       }
-    });
-  }
+    }
+
+    // ✅ Now safe to load viewer links
+    this.loadViewerLinks();
+  });
+}
+
+  
 
   safeFormatDate(dateStr: string): string {
     const date = new Date(dateStr);
@@ -84,7 +86,7 @@ export class Share {
       return;
     }
 
-    this.repoSearchService.searchRepos(this.repoSearch, this.shareId).subscribe({
+    this.repoSearchService.searchRepos(this.repoSearch).subscribe({
       next: (repos) => this.suggestions = repos,
       error: () => {
         this.suggestions = [];
@@ -125,60 +127,243 @@ export class Share {
   }
 
   createViewerLink(form: NgForm): void {
-    if (!form.valid || !this.selectedRepo || this.maxViews === null || this.expiresIn === null) {
-      this.toastr.error('Fill all fields and select a repo from suggestions.', 'Validation Error');
-      return;
-    }
+  if (!form.valid || !this.selectedRepo || this.maxViews === null || this.expiresIn === null) {
+    this.toastr.error('Fill all fields and select a repo from suggestions.', 'Validation Error');
+    return;
+  }
 
-    // Extra validation to prevent submitting invalid input
-    if (this.repoSearch !== this.selectedRepo.name) {
-      this.toastr.error('Please select a repository from the suggestions list.', 'Validation Error');
-      return;
-    }
+  if (this.repoSearch !== this.selectedRepo.name) {
+    this.toastr.error('Please select a repository from the suggestions list.', 'Validation Error');
+    return;
+  }
 
-    const payload: ViewerLinkRequest = {
-      repoUrl: this.repoName,
-      shareId: this.shareId,
-      maxViews: this.maxViews,
-      expiresInMinutes: this.expiresIn
-    };
+  const payload: ViewerLinkRequest = {
+    repoUrl: this.repoName,
+    shareId: this.shareId,
+    maxViews: this.maxViews,
+    expiresInMinutes: this.expiresIn
+  };
 
-    this.viewerLinkService.createViewerLink(payload).subscribe({
-      next: (response: ErrorDTO | ViewerLinkViewResponse) => {
-        if ('viewerUrl' in response) {
-          // Success response
-          const newLink: ViewerLinkDTO = {
-            viewerId: this.extractViewerId(response.viewerUrl),
-            repoUrl: this.repoName,
-            viewsLeft: response.maxViews,
-            maxViews: response.maxViews,
-            expiresAt: response.expiresAt,
-            status: this.isExpired(response) ? 'expired' : 'active',
-            viewerUrl: response.viewerUrl
-          };
+  this.viewerLinkService.createViewerLink(payload).subscribe({
+    next: (response: SuccessDTO | ErrorDTO) => {
+      if ('message' in response) {
+        // Success case
+        this.toastr.success(response.message, 'Success');
+        form.resetForm();
+        this.repoSearch = '';
+        this.repoName = '';
+        this.expiresIn = null;
+        this.maxViews = null;
+        this.selectedRepo = null;
 
-          this.viewerLinks.unshift(newLink);
-          this.repoSearch = '';
-          this.repoName = '';
-          this.expiresIn = null;
-          this.maxViews = null;
-          this.selectedRepo = null;
-          this.toastr.success('Viewer link created successfully!', 'Success');
-          form.resetForm();
-        } else if ('error' in response) {
-          this.toastr.error(response.error, 'Error');
-        } else {
-          this.toastr.error('Unexpected response from server', 'Error');
-        }
-      },
-      error: (err) => {
-        this.toastr.error(err.error?.error || 'Failed to create viewer link.', 'Error');
+        // Reload viewer links from backend to sync UI
+        this.loadViewerLinks();
+      } else if ('error' in response) {
+        this.toastr.error(response.error, 'Error');
+      } else {
+        this.toastr.error('Unexpected response from server', 'Error');
       }
-    });
+    },
+    error: (err) => {
+      this.toastr.error(err.error?.error || 'Failed to create viewer link.', 'Error');
+    }
+  });
+}
+
+selectedStatus: 'all' | 'active' | 'expired' = 'all';
+//viewerLinks: ViewerLinkDTO[] = [];
+filteredLinks: ViewerLinkDTO[] = [];  // This is what UI should use for display
+totalPages: number = 0;
+currentPage = 0;
+pageSize = 5;
+
+loadViewerLinks(): void {
+  this.viewerLinkService.getViewerLinksPaginated(this.currentPage, this.pageSize).subscribe({
+    next: (paginatedData) => {
+      this.viewerLinks = paginatedData.content.map(link => ({
+  ...link,
+  viewerId: link.viewerUrl.split('/').pop() || '',
+  expiresAtFormatted: this.safeFormatDate(link.expiresAt),
+  viewerUrl: link.viewerUrl,
+  status: link.status || (this.isExpired(link) ? 'expired' : 'active'),
+}));
+      
+      this.totalPages = paginatedData.totalPages;
+
+      // Apply filter after loading
+      this.applyFilter();
+    },
+    error: () => {
+      this.toastr.error('Failed to load viewer links.');
+    }
+  });
+}
+
+setStatusFilter(status: 'all' | 'active' | 'expired'): void {
+  this.selectedStatus = status;
+  this.applyFilter();
+}
+
+applyFilter(): void {
+  if (this.selectedStatus === 'all') {
+    this.filteredLinks = [...this.viewerLinks];
+  } else {
+    this.filteredLinks = this.viewerLinks.filter(link => link.status === this.selectedStatus);
+  }
+}
+
+
+goToPreviousPage() {
+  if (this.currentPage > 0) {
+    this.currentPage--;
+    this.loadViewerLinks();  // re-fetch links for the new page
+  }
+}
+
+goToNextPage() {
+  if (this.currentPage + 1 < this.totalPages) {
+    this.currentPage++;
+    this.loadViewerLinks();  // re-fetch links for the new page
+  }
+}
+
+
+
+
+  extractRepoName(url: string): string {
+  const parts = url.split('/');
+  let repoName = parts[parts.length - 1];
+  if (repoName.endsWith('.git')) {
+    repoName = repoName.slice(0, -4); // remove last 4 chars ".git"
+  }
+  return repoName;
+}
+
+
+
+deleteLink(viewerId: string): void {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'This will permanently delete the link.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Yes, delete it!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.viewerLinkService.deleteViewerLink(viewerId).subscribe({
+        next: (response) => {
+          if ('message' in response) {
+            this.toastr.success(response.message, 'Deleted');
+            this.loadViewerLinks();
+          } else if ('error' in response) {
+            this.toastr.error(response.error, 'Error');
+          }
+        },
+        error: () => this.toastr.error('Failed to delete viewer link.', 'Error')
+      });
+    }
+  });
+}
+
+
+editLink(link: ViewerLinkDTO) {
+  if (link.viewsLeft <= 0) {
+    this.toastr.warning("Cannot edit viewer link because views left is zero");
+    return; // Prevent edit dialog from opening
   }
 
-  extractViewerId(url: string): string {
-    const parts = url.split('/');
-    return parts[parts.length - 1];
+  // Existing expiration check
+  const expiresAtDate = new Date(link.expiresAt);
+  const now = new Date();
+
+  if (expiresAtDate <= now) {
+    this.toastr.warning("Cannot edit expired viewer link");
+    return;
   }
+
+  Swal.fire({
+    title: 'Edit Viewer Link',
+    html: `
+      <input type="number" id="maxViews" class="swal2-input" min="1" placeholder="Max Views" value="${link.maxViews}">
+      <input type="number" id="expiresInMinutes" class="swal2-input" min="1" placeholder="Expires In Minutes (optional)">
+    `,
+    confirmButtonText: 'Update',
+    showCancelButton: true,
+    focusConfirm: false,
+    preConfirm: () => {
+      const popup = Swal.getPopup();
+      const maxViewsInput = popup?.querySelector<HTMLInputElement>('#maxViews');
+      const expiresInput = popup?.querySelector<HTMLInputElement>('#expiresInMinutes');
+
+      if (!maxViewsInput) {
+        Swal.showValidationMessage('Max Views input not found');
+        return;
+      }
+
+      const maxViewsStr = maxViewsInput.value?.trim();
+      const expiresStr = expiresInput?.value?.trim();
+
+      if (!maxViewsStr) {
+        Swal.showValidationMessage('Max Views is required');
+        return;
+      }
+
+      const maxViews = Number(maxViewsStr);
+      if (isNaN(maxViews) || maxViews <= 0) {
+        Swal.showValidationMessage('Max Views must be a positive number');
+        return;
+      }
+
+      let expiresInMinutes: number | null = null;
+      if (expiresStr) {
+        expiresInMinutes = Number(expiresStr);
+        if (isNaN(expiresInMinutes) || expiresInMinutes <= 0) {
+          Swal.showValidationMessage('Expires In Minutes must be a positive number or left blank');
+          return;
+        }
+      }
+
+      return { maxViews, expiresInMinutes };
+    }
+  }).then((result) => {
+    if (result.isConfirmed && result.value) {
+      const payload: ViewerLinkUpdateRequest = {
+        maxViews: result.value.maxViews
+      };
+
+      if (result.value.expiresInMinutes != null) {
+        payload.expiresInMinutes = result.value.expiresInMinutes;
+      }
+
+      this.viewerLinkService.updateViewerLink(link.viewerId, payload).subscribe({
+        next: () => {
+          this.toastr.success("Viewer link updated successfully");
+          this.loadViewerLinks();
+        },
+        error: () => {
+          this.toastr.error("Failed to update viewer link");
+        }
+      });
+    }
+  });
+}
+
+onViewerLinkClick(link: ViewerLinkDTO) {
+  this.viewerLinkService.getViewerStatus(link.viewerId).subscribe({
+    next: (response) => {
+      if ('viewsLeft' in response) {
+        link.viewsLeft = response.viewsLeft;
+      }
+      // Open the URL you got from backend (like http://localhost:4200/access/6d73fe2e90)
+      window.open(link.viewerUrl, '_blank');
+    },
+    error: () => {
+      this.toastr.error('Failed to update view count or link expired');
+    }
+  });
+}
+
+
 }

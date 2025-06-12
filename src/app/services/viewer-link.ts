@@ -9,7 +9,7 @@ import { SuccessDTO } from '../models/viewer-link/success-dto';
 import { ViewerLinkAccessDTO } from '../models/viewer-link/viewer-link-access-dto';
 import { ViewerLinkContentResponse } from '../models/viewer-link/viewer-link-content-response';
 import { ViewerLinkDTO } from '../models/viewer-link/viewer-link-dto';
-
+import { PaginatedViewerLinks } from '../models/viewer-link/paginated-viewer-links ';
 
 @Injectable({
   providedIn: 'root'
@@ -20,9 +20,18 @@ export class ViewerLinkService {
   constructor(private http: HttpClient) {}
 
   // Create a new viewer link
-  createViewerLink(payload: ViewerLinkRequest): Observable<ViewerLinkViewResponse | ErrorDTO> {
-    
-    return this.http.post<ViewerLinkViewResponse | ErrorDTO>(`${this.baseUrl}/create`, payload);
+  createViewerLink(payload: ViewerLinkRequest): Observable<SuccessDTO | ErrorDTO> {
+    const shareId = localStorage.getItem('shareId');
+    if (!shareId) {
+      throw new Error('No shareId found in localStorage.');
+    }
+
+    const enrichedPayload = {
+      ...payload,
+      shareId: shareId
+    };
+
+    return this.http.post<SuccessDTO | ErrorDTO>(`${this.baseUrl}/create`, enrichedPayload);
   }
 
   // Update an existing viewer link
@@ -45,8 +54,15 @@ export class ViewerLinkService {
     return this.http.get<ViewerLinkContentResponse | ErrorDTO>(`${this.baseUrl}/content/${viewerId}`);
   }
 
-  // Get all viewer links
-  getAllViewerLinks(): Observable<ViewerLinkDTO[]> {
-    return this.http.get<ViewerLinkDTO[]>(`${this.baseUrl}`);
+  // Get all viewer links (paginated)
+  getViewerLinksPaginated(page: number, size: number): Observable<PaginatedViewerLinks> {
+
+    const shareId = localStorage.getItem('shareId') || '';
+    const headers = { 'X-Share-Id': shareId };
+
+  return this.http.get<PaginatedViewerLinks>(
+    `${this.baseUrl}?page=${page}&size=${size}`,
+    { headers }
+  );
   }
 }

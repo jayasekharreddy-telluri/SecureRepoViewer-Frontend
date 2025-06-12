@@ -40,7 +40,7 @@ export class Success implements OnInit {
   }
 
   fetchUserData(shareId: string): void {
-    this.successSer.getSharedRepo(shareId).subscribe({
+    this.successSer.getSharedRepo().subscribe({
       next: data => {
         if (!data.repoOwner || !data.avatarUrl || !data.repos) return;
 
@@ -70,7 +70,7 @@ export class Success implements OnInit {
 
     this.isLoading = true;
 
-    this.successSer.searchRepos(query, this.shareId).subscribe({
+    this.successSer.searchRepos(query).subscribe({
       next: results => {
         this.filteredRepos = results;
         this.isLoading = false;
