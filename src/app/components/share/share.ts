@@ -349,21 +349,23 @@ editLink(link: ViewerLinkDTO) {
     }
   });
 }
-
 onViewerLinkClick(link: ViewerLinkDTO) {
   this.viewerLinkService.getViewerStatus(link.viewerId).subscribe({
     next: (response) => {
       if ('viewsLeft' in response) {
         link.viewsLeft = response.viewsLeft;
       }
-      // Open the URL you got from backend (like http://localhost:4200/access/6d73fe2e90)
-      window.open(link.viewerUrl, '_blank');
+
+      // 👇 Convert to full URL (important!)
+      const fullUrl = `${window.location.origin}/access/${link.viewerId}`;
+      window.open(fullUrl, '_blank');
     },
     error: () => {
       this.toastr.error('Failed to update view count or link expired');
     }
   });
 }
+
 
 
 }

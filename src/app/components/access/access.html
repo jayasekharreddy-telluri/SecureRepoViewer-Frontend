@@ -1,1 +1,13 @@
-<p>access works!</p>
+<!-- File Tree -->
+<ng-container *ngFor="let node of fileTree">
+  <app-file-node
+    [node]="node"
+    (fileSelected)="onFileSelected($event)">
+  </app-file-node>
+</ng-container>
+
+<!-- Monaco Viewer -->
+<app-monaco-viewer
+  *ngIf="selectedFileContent"
+  [code]="selectedFileContent">
+</app-monaco-viewer>

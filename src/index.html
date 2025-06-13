@@ -11,5 +11,29 @@
 </head>
 <body class="mat-typography">
   <app-root></app-root>
+  
+<script src="assets/monaco/vs/loader.js"></script>
+<script>
+  if (typeof require !== 'undefined') {
+    require.config({ paths: { vs: 'assets/monaco/vs' } });
+
+    window.MonacoEnvironment = {
+      getWorkerUrl: function (_, label) {
+        return `data:text/javascript;charset=utf-8,${encodeURIComponent(`
+          self.MonacoEnvironment = { baseUrl: 'assets/monaco/' };
+          importScripts('assets/monaco/vs/base/worker/workerMain.js');`
+        )}`;
+      }
+    };
+
+    require(['vs/editor/editor.main'], function () {
+      window.monacoLoaded = true;
+      window.monaco = monaco;
+    });
+  } else {
+    console.error('Monaco loader (require.js) failed to load.');
+  }
+</script>
+
 </body>
 </html>

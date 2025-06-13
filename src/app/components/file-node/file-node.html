@@ -1,0 +1,18 @@
+<div
+  class="file-node"
+  [class.folder]="node.directory"
+  (click)="toggle()"
+  tabindex="0"
+  role="button"
+  [attr.aria-expanded]="expanded"
+>
+  {{ node.directory ? '📁' : '📄' }} {{ node.name }}
+</div>
+
+<div *ngIf="expanded && node.children?.length" class="children">
+  <app-file-node
+    *ngFor="let child of node.children"
+    [node]="child"
+    (fileSelected)="fileSelected.emit($event)"
+  ></app-file-node>
+</div>

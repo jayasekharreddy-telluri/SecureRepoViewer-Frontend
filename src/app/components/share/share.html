@@ -97,9 +97,10 @@
     </div>
 
     <div class="viewer-url">
-  <a href="#" (click)="onViewerLinkClick(link)" target="_blank" rel="noopener noreferrer">
-    {{ link.viewerUrl }}
-  </a>
+  <a (click)="onViewerLinkClick(link)" class="viewer-link">
+  {{ link.viewerUrl }}
+</a>
+
 </div>
     <div class="actions">
      <button title="Edit" (click)="editLink(link)">🖊️</button>
