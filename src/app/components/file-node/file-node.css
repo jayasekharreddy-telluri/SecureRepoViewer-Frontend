@@ -1,13 +1,17 @@
 .file-node {
-  padding: 4px 8px;
+  padding: 6px 10px;
+  margin: 2px 0;
   cursor: pointer;
   user-select: none;
   border-radius: 4px;
   transition: background-color 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .file-node:hover {
-  background-color: #f0f0f0;
+  background-color: #e0f2f1;
 }
 
 .file-node.folder {

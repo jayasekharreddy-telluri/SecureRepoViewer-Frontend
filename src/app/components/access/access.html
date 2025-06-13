@@ -1,13 +1,17 @@
-<!-- File Tree -->
-<ng-container *ngFor="let node of fileTree">
-  <app-file-node
-    [node]="node"
-    (fileSelected)="onFileSelected($event)">
-  </app-file-node>
-</ng-container>
+<div class="container">
+  <div class="sidebar">
+    <ng-container *ngFor="let node of fileTree">
+      <app-file-node
+        [node]="node"
+        (fileSelected)="onFileSelected($event)">
+      </app-file-node>
+    </ng-container>
+  </div>
 
-<!-- Monaco Viewer -->
-<app-monaco-viewer
-  *ngIf="selectedFileContent"
-  [code]="selectedFileContent">
-</app-monaco-viewer>
+  <div class="content">
+    <app-monaco-viewer
+      *ngIf="selectedFileContent"
+      [code]="selectedFileContent">
+    </app-monaco-viewer>
+  </div>
+</div>
