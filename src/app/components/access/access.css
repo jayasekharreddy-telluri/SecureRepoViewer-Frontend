@@ -2,6 +2,7 @@
   display: flex;
   height: 100vh;
   overflow: hidden;
+  user-select: none; /* Prevent copying */
 }
 
 .sidebar {
@@ -14,8 +15,40 @@
 
 .content {
   flex: 1;
-  padding: 1rem;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+
+.tabs {
+  display: flex;
+  background-color: #eee;
+  border-bottom: 1px solid #ccc;
+}
+
+.tab {
+  padding: 8px 16px;
+  cursor: pointer;
+  position: relative;
+  border-right: 1px solid #ccc;
+  background-color: #ddd;
+  font-weight: bold;
+}
+
+.tab.active {
+  background-color: #fff;
+  border-bottom: 2px solid #1976d2;
+}
+
+.close-btn {
+  margin-left: 8px;
+  color: red;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.editor {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
 }

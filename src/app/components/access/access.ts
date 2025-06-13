@@ -5,6 +5,12 @@ import { CommonModule } from '@angular/common';
 import { FileNode } from '../file-node/file-node';
 import { MonacoViewer } from '../monaco-viewer/monaco-viewer';
 
+interface OpenedFile {
+  path: string;
+  content: string;
+  name: string;
+}
+
 @Component({
   selector: 'app-access',
   standalone: true,
@@ -15,15 +21,12 @@ import { MonacoViewer } from '../monaco-viewer/monaco-viewer';
 export class Access implements OnInit {
   viewerId: string = '';
   fileTree: any[] = [];
-  selectedFilePath: string = '';
-  selectedFileContent: string = '';
+  openedFiles: OpenedFile[] = [];
+  activeFileIndex: number = -1;
   loading = true;
   error = '';
 
-  constructor(
-    private route: ActivatedRoute,
-    private http: HttpClient
-  ) {}
+  constructor(private route: ActivatedRoute, private http: HttpClient) {}
 
   ngOnInit(): void {
     this.viewerId = this.route.snapshot.paramMap.get('viewerId') || '';
@@ -32,6 +35,9 @@ export class Access implements OnInit {
       return;
     }
     this.fetchFileTree();
+
+    // Prevent right-click context menu
+    document.addEventListener('contextmenu', (e) => e.preventDefault());
   }
 
   fetchFileTree() {
@@ -49,24 +55,42 @@ export class Access implements OnInit {
   }
 
   onFileSelected(path: string) {
-    this.selectedFilePath = path;
-    this.fetchFileContent(path);
+    const name = path.split('/').pop() || path;
+    const existingIndex = this.openedFiles.findIndex(file => file.path === path);
+
+    if (existingIndex !== -1) {
+      this.activeFileIndex = existingIndex;
+    } else {
+      this.http.get(`http://localhost:8080/api/repo/file-content`, {
+        params: { viewerId: this.viewerId, path },
+        responseType: 'text'
+      }).subscribe({
+        next: (data) => {
+          const newFile: OpenedFile = { path, name, content: data };
+          this.openedFiles.push(newFile);
+          this.activeFileIndex = this.openedFiles.length - 1;
+        },
+        error: () => {
+          const errorContent = 'Failed to load file content.';
+          const newFile: OpenedFile = { path, name, content: errorContent };
+          this.openedFiles.push(newFile);
+          this.activeFileIndex = this.openedFiles.length - 1;
+        }
+      });
+    }
   }
 
- fetchFileContent(path: string) {
-  console.log('Fetching content for:', path); // Debug
-  this.http.get(`http://localhost:8080/api/repo/file-content`, {
-    params: { viewerId: this.viewerId, path: path },
-    responseType: 'text'
-  }).subscribe({
-    next: (data) => {
-      console.log('Fetched content:', data); // Debug
-      this.selectedFileContent = data;
-    },
-    error: () => {
-      this.selectedFileContent = 'Failed to load file content.';
+  closeTab(index: number) {
+    this.openedFiles.splice(index, 1);
+    if (this.activeFileIndex >= index) {
+      this.activeFileIndex = Math.max(0, this.activeFileIndex - 1);
     }
-  });
-}
+    if (this.openedFiles.length === 0) {
+      this.activeFileIndex = -1;
+    }
+  }
 
+  activateTab(index: number) {
+    this.activeFileIndex = index;
+  }
 }

@@ -1,17 +1,28 @@
-<div class="container">
+<div class="container" (contextmenu)="$event.preventDefault()">
+  <!-- File Tree Sidebar -->
   <div class="sidebar">
     <ng-container *ngFor="let node of fileTree">
-      <app-file-node
-        [node]="node"
-        (fileSelected)="onFileSelected($event)">
-      </app-file-node>
+      <app-file-node [node]="node" (fileSelected)="onFileSelected($event)"></app-file-node>
     </ng-container>
   </div>
 
+  <!-- Editor Tabs + Viewer -->
   <div class="content">
-    <app-monaco-viewer
-      *ngIf="selectedFileContent"
-      [code]="selectedFileContent">
-    </app-monaco-viewer>
+    <div class="tabs" *ngIf="openedFiles.length > 0">
+      <div
+        class="tab"
+        *ngFor="let file of openedFiles; let i = index"
+        [class.active]="i === activeFileIndex"
+        (click)="activateTab(i)"
+      >
+        {{ file.name }}
+        <span class="close-btn" (click)="closeTab(i)">×</span>
+      </div>
+    </div>
+
+    <div class="editor" *ngIf="activeFileIndex >= 0">
+      <app-monaco-viewer [code]="openedFiles[activeFileIndex].content || ''"></app-monaco-viewer>
+
+    </div>
   </div>
 </div>
