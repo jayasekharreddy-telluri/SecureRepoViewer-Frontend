@@ -14,15 +14,24 @@
         *ngFor="let file of openedFiles; let i = index"
         [class.active]="i === activeFileIndex"
         (click)="activateTab(i)"
+        (contextmenu)="onTabRightClick($event, i)"
       >
         {{ file.name }}
         <span class="close-btn" (click)="closeTab(i)">×</span>
       </div>
     </div>
 
+    <!-- Context Menu -->
+    <ul class="tab-context-menu" *ngIf="contextMenuVisible" [style.top.px]="contextMenuY" [style.left.px]="contextMenuX">
+      <li (click)="closeTab(contextMenuIndex)">Close</li>
+      <li (click)="closeOtherTabs(contextMenuIndex)">Close Others</li>
+      <li (click)="closeTabsToRight(contextMenuIndex)">Close Tabs to Right</li>
+      <li (click)="closeTabsToLeft(contextMenuIndex)">Close Tabs to Left</li>
+      <li (click)="closeAllTabs()">Close All</li>
+    </ul>
+
     <div class="editor" *ngIf="activeFileIndex >= 0">
       <app-monaco-viewer [code]="openedFiles[activeFileIndex].content || ''"></app-monaco-viewer>
-
     </div>
   </div>
 </div>

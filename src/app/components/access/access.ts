@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -26,6 +26,11 @@ export class Access implements OnInit {
   loading = true;
   error = '';
 
+  contextMenuVisible = false;
+  contextMenuX = 0;
+  contextMenuY = 0;
+  contextMenuIndex = -1;
+
   constructor(private route: ActivatedRoute, private http: HttpClient) {}
 
   ngOnInit(): void {
@@ -36,7 +41,7 @@ export class Access implements OnInit {
     }
     this.fetchFileTree();
 
-    // Prevent right-click context menu
+    // Prevent right-click context menu globally
     document.addEventListener('contextmenu', (e) => e.preventDefault());
   }
 
@@ -88,9 +93,50 @@ export class Access implements OnInit {
     if (this.openedFiles.length === 0) {
       this.activeFileIndex = -1;
     }
+    this.contextMenuVisible = false;
   }
 
   activateTab(index: number) {
     this.activeFileIndex = index;
+  }
+
+  onTabRightClick(event: MouseEvent, index: number) {
+    event.preventDefault();
+    this.contextMenuIndex = index;
+    this.contextMenuX = event.clientX;
+    this.contextMenuY = event.clientY;
+    this.contextMenuVisible = true;
+  }
+
+  closeOtherTabs(index: number) {
+    const current = this.openedFiles[index];
+    this.openedFiles = [current];
+    this.activeFileIndex = 0;
+    this.contextMenuVisible = false;
+  }
+
+  closeTabsToRight(index: number) {
+    this.openedFiles = this.openedFiles.slice(0, index + 1);
+    if (this.activeFileIndex > index) {
+      this.activeFileIndex = index;
+    }
+    this.contextMenuVisible = false;
+  }
+
+  closeTabsToLeft(index: number) {
+    this.openedFiles = this.openedFiles.slice(index);
+    this.activeFileIndex = this.activeFileIndex - index;
+    this.contextMenuVisible = false;
+  }
+
+  closeAllTabs() {
+    this.openedFiles = [];
+    this.activeFileIndex = -1;
+    this.contextMenuVisible = false;
+  }
+
+  @HostListener('document:click')
+  hideContextMenu() {
+    this.contextMenuVisible = false;
   }
 }
