@@ -1,15 +1,11 @@
 import { Component, OnInit, HostListener } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FileNode } from '../file-node/file-node';
 import { MonacoViewer } from '../monaco-viewer/monaco-viewer';
-
-interface OpenedFile {
-  path: string;
-  content: string;
-  name: string;
-}
+import { OpenedFile } from '../../models/opened-file.model';
+import { RepoViewerService } from '../../services/repo-viewer.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-access',
@@ -31,7 +27,11 @@ export class Access implements OnInit {
   contextMenuY = 0;
   contextMenuIndex = -1;
 
-  constructor(private route: ActivatedRoute, private http: HttpClient) {}
+  constructor(
+    private route: ActivatedRoute,
+    private viewerService: RepoViewerService,
+     private toastr: ToastrService
+  ) {}
 
   ngOnInit(): void {
     this.viewerId = this.route.snapshot.paramMap.get('viewerId') || '';
@@ -41,22 +41,22 @@ export class Access implements OnInit {
     }
     this.fetchFileTree();
 
-    // Prevent right-click context menu globally
     document.addEventListener('contextmenu', (e) => e.preventDefault());
   }
 
   fetchFileTree() {
-    this.http.get<any[]>(`http://localhost:8080/api/repo/viewer-file-tree?viewerId=${this.viewerId}`)
-      .subscribe({
-        next: (data) => {
-          this.fileTree = data;
-          this.loading = false;
-        },
-        error: () => {
-          this.error = 'Failed to load file tree.';
-          this.loading = false;
-        }
-      });
+    this.viewerService.getFileTree(this.viewerId).subscribe({
+      next: (data) => {
+        this.fileTree = data;
+        this.loading = false;
+        this.toastr.success('File tree loaded successfully!', 'Success');
+      },
+      error: () => {
+        this.error = 'Failed to load file tree.';
+        console.error(this.error);
+        this.loading = false;
+      }
+    });
   }
 
   onFileSelected(path: string) {
@@ -66,20 +66,19 @@ export class Access implements OnInit {
     if (existingIndex !== -1) {
       this.activeFileIndex = existingIndex;
     } else {
-      this.http.get(`http://localhost:8080/api/repo/file-content`, {
-        params: { viewerId: this.viewerId, path },
-        responseType: 'text'
-      }).subscribe({
+      this.viewerService.getFileContent(this.viewerId, path).subscribe({
         next: (data) => {
           const newFile: OpenedFile = { path, name, content: data };
           this.openedFiles.push(newFile);
           this.activeFileIndex = this.openedFiles.length - 1;
+           this.toastr.success(`Opened file: ${name}`, 'Success');
         },
-        error: () => {
-          const errorContent = 'Failed to load file content.';
-          const newFile: OpenedFile = { path, name, content: errorContent };
-          this.openedFiles.push(newFile);
-          this.activeFileIndex = this.openedFiles.length - 1;
+        error: (err) => {
+         const backendMessage = err?.error || 'Unknown error occurred.';
+    const newFile: OpenedFile = { path, name, content: backendMessage };
+    this.openedFiles.push(newFile);
+    this.activeFileIndex = this.openedFiles.length - 1;
+    //this.toastr.error(backendMessage, `Failed to open file: ${name}`);
         }
       });
     }
