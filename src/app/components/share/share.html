@@ -15,31 +15,39 @@
         placeholder="e.g. my-private-repo"
         required
         autocomplete="off"
-        type="text"
         class="input-field"
+        type="text"
       />
-      <ul *ngIf="suggestions.length" class="suggestions-list">
+      <ul *ngIf="suggestions && suggestions.length > 0" class="suggestions-list">
         <li *ngFor="let repo of suggestions" (mousedown)="selectRepo(repo)">
           {{ repo.name }}
         </li>
       </ul>
     </div>
 
-    <!-- Branch Dropdown -->
-    <div class="form-group" *ngIf="branchSuggestions.length > 0">
-      <label for="branchSelect">Select Branch</label>
-      <select
-        id="branchSelect"
-        name="selectedBranch"
-        [(ngModel)]="selectedBranch"
-        required
+    <!-- Branch Search -->
+    <div class="form-group" *ngIf="branchSuggestions && branchSuggestions.length">
+      <label for="branchSearch">Search Branch</label>
+      <input
+        id="branchSearch"
+        name="branchSearch"
+        [(ngModel)]="branchSearchTerm"
+        (input)="onBranchSearchChange()"
+        autocomplete="off"
         class="input-field"
-      >
-        <option value="" disabled selected>Select a branch</option>
-        <option *ngFor="let branch of branchSuggestions" [value]="branch.name">
+        type="text"
+        placeholder="Start typing branch name..."
+        required
+      />
+      <ul *ngIf="filteredBranches && filteredBranches.length > 0" class="suggestions-list">
+        <li *ngFor="let branch of filteredBranches" (mousedown)="selectBranch(branch)">
           {{ branch.name }}
-        </option>
-      </select>
+        </li>
+      </ul>
+      <div *ngIf="showNoBranchesMessage" class="no-results">
+  No branches found.
+</div>
+
     </div>
 
     <!-- Expiration and Views -->
@@ -53,7 +61,6 @@
           [(ngModel)]="expiresIn"
           required
           min="1"
-          placeholder="30"
           class="input-field"
         />
       </div>
@@ -67,7 +74,6 @@
           [(ngModel)]="maxViews"
           required
           min="1"
-          placeholder="100"
           class="input-field"
         />
       </div>
@@ -79,29 +85,16 @@
   </form>
 </div>
 
-<!-- Viewer Links Section -->
-<div class="viewer-links-container" *ngIf="filteredLinks.length > 0; else noLinksOrFilterResults">
+<!-- Viewer Links Table/Pagination -->
+<div class="viewer-links-container" *ngIf="filteredLinks.length; else noLinksTemplate">
   <div class="viewer-link-row header">
-    <div>Repository Name</div>
+    <div>Repo</div>
     <div>Views Left</div>
     <div>Expires At</div>
-
     <div class="clickable-status-header">
-      <span
-        [class.active]="selectedStatus === 'active'"
-        (click)="setStatusFilter('active')"
-      >
-        ✅ 
-      </span>
-      |
-      <span
-        [class.expired]="selectedStatus === 'expired'"
-        (click)="setStatusFilter('expired')"
-      >
-        ⛔
-      </span>
+      <span [class.active]="selectedStatus === 'active'" (click)="setStatusFilter('active')">✅</span> |
+      <span [class.expired]="selectedStatus === 'expired'" (click)="setStatusFilter('expired')">⛔</span>
     </div>
-
     <div>Viewer URL</div>
     <div>Actions</div>
   </div>
@@ -110,23 +103,18 @@
     <div class="repo-name" title="{{ link.repoUrl }}">{{ extractRepoName(link.repoUrl) }}</div>
     <div>{{ link.viewsLeft }} / {{ link.maxViews }}</div>
     <div>{{ link.expiresAtFormatted }}</div>
-    <div [ngClass]="{'active-status': link.status === 'active', 'expired-status': link.status === 'expired'}">
+    <div [ngClass]="link.status === 'active' ? 'active-status' : 'expired-status'">
       {{ link.status | titlecase }}
     </div>
-
     <div class="viewer-url">
-      <a  class="viewer-link">
-        {{ link.viewerUrl }}
-      </a>
+      <a class="viewer-link">{{ link.viewerUrl }}</a>
     </div>
-
     <div class="actions">
       <button title="Edit" (click)="editLink(link)">🖊️</button>
       <button title="Delete" (click)="deleteLink(link.viewerId)">🗑️</button>
     </div>
   </div>
 
-  <!-- Pagination Controls -->
   <div class="pagination-controls">
     <button (click)="goToPreviousPage()" [disabled]="currentPage === 0">Previous</button>
     <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
@@ -134,19 +122,19 @@
   </div>
 </div>
 
-<!-- No Results Template -->
-<ng-template #noLinksOrFilterResults>
+<ng-template #noLinksTemplate>
   <div class="no-links-message">
     <p *ngIf="selectedStatus === 'all'">
-      No viewer links found. Create one above to get started.
+      No viewer links yet.
     </p>
     <p *ngIf="selectedStatus === 'active'">
-      No <strong>active</strong> links found.
+      No active viewer links.
     </p>
     <p *ngIf="selectedStatus === 'expired'">
-      No <strong>expired</strong> links found.
+      No expired viewer links.
     </p>
-
-    <button *ngIf="selectedStatus !== 'all'" (click)="setStatusFilter('all')">Show All</button>
+    <button *ngIf="selectedStatus !== 'all'" (click)="setStatusFilter('all')">
+      Show All
+    </button>
   </div>
 </ng-template>

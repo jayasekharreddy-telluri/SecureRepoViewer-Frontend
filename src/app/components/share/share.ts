@@ -16,7 +16,6 @@ import Swal from 'sweetalert2';
 import { ViewerLinkUpdateRequest } from '../../models/viewer-link/viewer-link-update-request';
 import { BranchDTO } from '../../models/branch.dto';
 
-
 @Component({
   selector: 'app-share',
   standalone: true,
@@ -25,23 +24,25 @@ import { BranchDTO } from '../../models/branch.dto';
   imports: [CommonModule, FormsModule],
 })
 export class Share {
-  repoSearch: string = '';
-  repoName: string = '';
-  selectedBranch: string = '';
+  repoSearch = '';
+  repoName = '';
+  selectedBranch = '';
+  branchSearchTerm = '';
   branchSuggestions: BranchDTO[] = [];
+  filteredBranches: BranchDTO[] = [];
 
   expiresIn: number | null = null;
   maxViews: number | null = null;
   viewerLinks: ViewerLinkDTO[] = [];
-  shareId: string = '';
+  shareId = '';
 
   suggestions: RepoDto[] = [];
   selectedRepo: RepoDto | null = null;
-  private suggestionClicked: boolean = false;
+  private suggestionClicked = false;
 
   selectedStatus: 'all' | 'active' | 'expired' = 'all';
   filteredLinks: ViewerLinkDTO[] = [];
-  totalPages: number = 0;
+  totalPages = 0;
   currentPage = 0;
   pageSize = 5;
 
@@ -58,14 +59,14 @@ export class Share {
       if (shareIdFromUrl) {
         localStorage.setItem('shareId', shareIdFromUrl);
         this.shareId = shareIdFromUrl;
-        this.toastr.info(`Share ID loaded from URL: ${this.shareId}`, 'Info');
+        this.toastr.info(`Share ID loaded from URL: ${this.shareId}`);
       } else {
         const storedShareId = localStorage.getItem('shareId');
         if (storedShareId) {
           this.shareId = storedShareId;
-          this.toastr.info(`Share ID loaded from local storage: ${this.shareId}`, 'Info');
+          this.toastr.info(`Share ID loaded from storage: ${this.shareId}`);
         } else {
-          this.toastr.warning('Share ID missing! Please login again.', 'Warning');
+          this.toastr.warning('Share ID missing. Please login again.');
           return;
         }
       }
@@ -78,12 +79,13 @@ export class Share {
       this.suggestions = [];
       return;
     }
+
     this.repoSearchService.searchRepos(this.repoSearch).subscribe({
       next: (repos) => this.suggestions = repos,
       error: () => {
         this.suggestions = [];
-        this.toastr.error('Error fetching repo suggestions.');
-      },
+        this.toastr.error('Failed to fetch repository suggestions.');
+      }
     });
   }
 
@@ -93,23 +95,19 @@ export class Share {
     this.repoSearch = repo.name;
     this.repoName = repo.name;
     this.suggestions = [];
-    this.branchSuggestions = [];
+    this.branchSearchTerm = '';
     this.selectedBranch = '';
+    this.branchSuggestions = [];
+    this.filteredBranches = [];
 
-    // Fetch branches after selecting a repo
     this.repoSearchService.getBranchesByRepo(this.shareId, this.repoName).subscribe({
-      next: (branches) => this.branchSuggestions = branches,
-      error: () => {
-        this.toastr.error('Failed to fetch branches.');
-      }
+      next: (branches) => {
+        this.branchSuggestions = branches;
+      },
+      error: () => this.toastr.error('Failed to fetch branches.')
     });
 
     setTimeout(() => this.suggestionClicked = false, 100);
-  }
-
-  blockPaste(event: ClipboardEvent): void {
-    event.preventDefault();
-    this.toastr.warning('Paste not allowed. Please select from suggestions.');
   }
 
   validateSelection(): void {
@@ -118,18 +116,43 @@ export class Share {
       this.repoSearch = '';
       this.repoName = '';
       this.selectedRepo = null;
-      this.toastr.warning('Invalid selection. Choose from the list only.');
+      this.toastr.warning('Please select a valid repository from the list.');
     }
   }
 
-  createViewerLink(form: NgForm): void {
-    if (!form.valid || !this.selectedRepo || !this.selectedBranch || this.maxViews === null || this.expiresIn === null) {
-      this.toastr.error('Fill all fields, select a repo and branch.', 'Validation Error');
-      return;
-    }
 
-    if (this.repoSearch !== this.selectedRepo.name) {
-      this.toastr.error('Please select a repository from the suggestions list.', 'Validation Error');
+
+branchSelected = false;
+showNoBranchesMessage = false;
+
+onBranchSearchChange(): void {
+  this.branchSelected = false;
+  const term = this.branchSearchTerm.trim().toLowerCase();
+
+  this.filteredBranches = this.branchSuggestions.filter(branch =>
+    branch.name.toLowerCase().includes(term)
+  );
+
+  this.showNoBranchesMessage = term.length > 0 && this.filteredBranches.length === 0;
+}
+
+selectBranch(branch: BranchDTO): void {
+  this.branchSearchTerm = branch.name;
+  this.selectedBranch = branch.name;
+  this.filteredBranches = [];
+  this.branchSelected = true;
+  this.showNoBranchesMessage = false; // ✅ hide "no results"
+}
+
+
+  blockPaste(event: ClipboardEvent): void {
+    event.preventDefault();
+    this.toastr.warning('Paste not allowed. Please select from suggestions.');
+  }
+
+  createViewerLink(form: NgForm): void {
+    if (!form.valid || !this.selectedRepo || !this.selectedBranch || this.maxViews == null || this.expiresIn == null) {
+      this.toastr.error('Please fill all fields and select a valid repository and branch.');
       return;
     }
 
@@ -142,27 +165,41 @@ export class Share {
     };
 
     this.viewerLinkService.createViewerLink(payload).subscribe({
-      next: (response: SuccessDTO | ErrorDTO) => {
-        if ('message' in response) {
-          this.toastr.success(response.message, 'Success');
+      next: (res: SuccessDTO | ErrorDTO) => {
+        if ('message' in res) {
+          this.toastr.success(res.message, 'Success');
           form.resetForm();
           this.repoSearch = '';
           this.repoName = '';
-          this.expiresIn = null;
-          this.maxViews = null;
           this.selectedRepo = null;
           this.selectedBranch = '';
+          this.branchSearchTerm = '';
+          this.expiresIn = null;
+          this.maxViews = null;
           this.branchSuggestions = [];
+          this.filteredBranches = [];
           this.loadViewerLinks();
-        } else if ('error' in response) {
-          this.toastr.error(response.error, 'Error');
-        } else {
-          this.toastr.error('Unexpected response from server', 'Error');
+        } else if ('error' in res) {
+          this.toastr.error(res.error, 'Error');
         }
       },
-      error: (err) => {
-        this.toastr.error(err.error?.error || 'Failed to create viewer link.', 'Error');
-      }
+      error: () => this.toastr.error('Failed to create viewer link.')
+    });
+  }
+
+  loadViewerLinks(): void {
+    this.viewerLinkService.getViewerLinksPaginated(this.currentPage, this.pageSize).subscribe({
+      next: (res) => {
+        this.viewerLinks = res.content.map(link => ({
+          ...link,
+          viewerId: link.viewerUrl.split('/').pop() || '',
+          expiresAtFormatted: this.safeFormatDate(link.expiresAt),
+          status: link.status || (this.isExpired(link) ? 'expired' : 'active'),
+        }));
+        this.totalPages = res.totalPages;
+        this.applyFilter();
+      },
+      error: () => this.toastr.error('Failed to load viewer links.')
     });
   }
 
@@ -173,25 +210,6 @@ export class Share {
 
   isExpired(link: { expiresAt: string }): boolean {
     return new Date(link.expiresAt) < new Date();
-  }
-
-  loadViewerLinks(): void {
-    this.viewerLinkService.getViewerLinksPaginated(this.currentPage, this.pageSize).subscribe({
-      next: (paginatedData) => {
-        this.viewerLinks = paginatedData.content.map(link => ({
-          ...link,
-          viewerId: link.viewerUrl.split('/').pop() || '',
-          expiresAtFormatted: this.safeFormatDate(link.expiresAt),
-          viewerUrl: link.viewerUrl,
-          status: link.status || (this.isExpired(link) ? 'expired' : 'active'),
-        }));
-        this.totalPages = paginatedData.totalPages;
-        this.applyFilter();
-      },
-      error: () => {
-        this.toastr.error('Failed to load viewer links.');
-      }
-    });
   }
 
   setStatusFilter(status: 'all' | 'active' | 'expired'): void {
@@ -205,14 +223,14 @@ export class Share {
       : this.viewerLinks.filter(link => link.status === this.selectedStatus);
   }
 
-  goToPreviousPage() {
+  goToPreviousPage(): void {
     if (this.currentPage > 0) {
       this.currentPage--;
       this.loadViewerLinks();
     }
   }
 
-  goToNextPage() {
+  goToNextPage(): void {
     if (this.currentPage + 1 < this.totalPages) {
       this.currentPage++;
       this.loadViewerLinks();
@@ -221,40 +239,36 @@ export class Share {
 
   extractRepoName(url: string): string {
     const parts = url.split('/');
-    let repoName = parts[parts.length - 1];
-    if (repoName.endsWith('.git')) {
-      repoName = repoName.slice(0, -4);
-    }
-    return repoName;
+    let repo = parts[parts.length - 1];
+    return repo.endsWith('.git') ? repo.slice(0, -4) : repo;
   }
 
   deleteLink(viewerId: string): void {
     Swal.fire({
-      title: 'Are you sure?',
-      text: 'This will permanently delete the link.',
+      title: 'Delete Viewer Link?',
+      text: 'This action cannot be undone.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel',
+    }).then(result => {
       if (result.isConfirmed) {
         this.viewerLinkService.deleteViewerLink(viewerId).subscribe({
-          next: (response) => {
-            if ('message' in response) {
-              this.toastr.success(response.message, 'Deleted');
+          next: (res) => {
+            if ('message' in res) {
+              this.toastr.success(res.message, 'Deleted');
               this.loadViewerLinks();
-            } else if ('error' in response) {
-              this.toastr.error(response.error, 'Error');
+            } else if ('error' in res) {
+              this.toastr.error(res.error, 'Error');
             }
           },
-          error: () => this.toastr.error('Failed to delete viewer link.', 'Error')
+          error: () => this.toastr.error('Failed to delete viewer link.')
         });
       }
     });
   }
 
-  editLink(link: ViewerLinkDTO) {
+editLink(link: ViewerLinkDTO) {
     if (link.viewsLeft <= 0) {
       this.toastr.warning("Cannot edit viewer link because views left is zero");
       return;
@@ -329,5 +343,4 @@ export class Share {
     });
   }
 
-  
 }

@@ -36,8 +36,12 @@ export class RepoSearchService {
     return this.http.get<RepoDto[]>(`${this.baseUrl}/repo-search`, { params });
   }
 
-   getBranchesByRepo(shareId: string, repo: string): Observable<BranchDTO[]> {
-    const url = `${this.baseUrl}/repo/${shareId}/branches?repo=${encodeURIComponent(repo)}`;
-    return this.http.get<BranchDTO[]>(url);
+   getBranchesByRepo(shareId: string, repo: string, search?: string): Observable<BranchDTO[]> {
+  let url = `${this.baseUrl}/repo/${shareId}/branches?repo=${encodeURIComponent(repo)}`;
+  if (search) {
+    url += `&search=${encodeURIComponent(search)}`;
   }
+  return this.http.get<BranchDTO[]>(url);
+}
+
 }
