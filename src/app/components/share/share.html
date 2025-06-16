@@ -2,6 +2,7 @@
   <h2 class="page-title">Create GitHub Viewer Link</h2>
 
   <form #form="ngForm" (ngSubmit)="createViewerLink(form)" class="create-link-form" novalidate>
+    <!-- Repo Search -->
     <div class="form-group">
       <label for="repoSearch">Search GitHub Repo Name</label>
       <input
@@ -24,6 +25,24 @@
       </ul>
     </div>
 
+    <!-- Branch Dropdown -->
+    <div class="form-group" *ngIf="branchSuggestions.length > 0">
+      <label for="branchSelect">Select Branch</label>
+      <select
+        id="branchSelect"
+        name="selectedBranch"
+        [(ngModel)]="selectedBranch"
+        required
+        class="input-field"
+      >
+        <option value="" disabled selected>Select a branch</option>
+        <option *ngFor="let branch of branchSuggestions" [value]="branch.name">
+          {{ branch.name }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Expiration and Views -->
     <div class="form-row">
       <div class="form-group">
         <label for="expiresIn">Expires In (minutes)</label>
@@ -60,6 +79,7 @@
   </form>
 </div>
 
+<!-- Viewer Links Section -->
 <div class="viewer-links-container" *ngIf="filteredLinks.length > 0; else noLinksOrFilterResults">
   <div class="viewer-link-row header">
     <div>Repository Name</div>
@@ -80,8 +100,6 @@
       >
         ⛔
       </span>
-      
-  
     </div>
 
     <div>Viewer URL</div>
@@ -97,15 +115,14 @@
     </div>
 
     <div class="viewer-url">
-  <a (click)="onViewerLinkClick(link)" class="viewer-link">
-  {{ link.viewerUrl }}
-</a>
+      <a  class="viewer-link">
+        {{ link.viewerUrl }}
+      </a>
+    </div>
 
-</div>
     <div class="actions">
-     <button title="Edit" (click)="editLink(link)">🖊️</button>
-     <button title="Delete" (click)="deleteLink(link.viewerId)">🗑️</button>
-
+      <button title="Edit" (click)="editLink(link)">🖊️</button>
+      <button title="Delete" (click)="deleteLink(link.viewerId)">🗑️</button>
     </div>
   </div>
 
@@ -117,6 +134,7 @@
   </div>
 </div>
 
+<!-- No Results Template -->
 <ng-template #noLinksOrFilterResults>
   <div class="no-links-message">
     <p *ngIf="selectedStatus === 'all'">

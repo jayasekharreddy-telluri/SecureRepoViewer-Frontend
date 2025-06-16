@@ -40,7 +40,7 @@ export class Success implements OnInit {
   }
 
   fetchUserData(shareId: string): void {
-    this.successSer.getSharedRepo().subscribe({
+    this.successSer.getRepo().subscribe({
       next: data => {
         if (!data.repoOwner || !data.avatarUrl || !data.repos) return;
 

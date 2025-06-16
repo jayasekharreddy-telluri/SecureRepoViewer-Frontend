@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RepoDto } from '../models/repo.dto';
 import { SharedRepoResponse } from '../models/SharedRepoResponse.dto';
+import { BranchDTO } from '../models/branch.dto';
 
 @Injectable({
   providedIn: 'root'
@@ -13,13 +14,13 @@ export class RepoSearchService {
   constructor(private http: HttpClient) {}
 
   // Automatically use shareId from localStorage
-  getSharedRepo(): Observable<SharedRepoResponse> {
+  getRepo(): Observable<SharedRepoResponse> {
     const shareId = localStorage.getItem('shareId');
     if (!shareId) {
       throw new Error('No shareId found in localStorage.');
     }
 
-    return this.http.get<SharedRepoResponse>(`${this.baseUrl}/shared-repo/${shareId}`);
+    return this.http.get<SharedRepoResponse>(`${this.baseUrl}/repo/${shareId}`);
   }
 
   searchRepos(query: string): Observable<RepoDto[]> {
@@ -32,6 +33,11 @@ export class RepoSearchService {
       .set('q', query)
       .set('shareId', shareId);
 
-    return this.http.get<RepoDto[]>(`${this.baseUrl}/shared-repo-links/search`, { params });
+    return this.http.get<RepoDto[]>(`${this.baseUrl}/repo-search`, { params });
+  }
+
+   getBranchesByRepo(shareId: string, repo: string): Observable<BranchDTO[]> {
+    const url = `${this.baseUrl}/repo/${shareId}/branches?repo=${encodeURIComponent(repo)}`;
+    return this.http.get<BranchDTO[]>(url);
   }
 }

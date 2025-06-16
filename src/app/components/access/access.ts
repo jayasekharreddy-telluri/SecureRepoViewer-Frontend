@@ -57,32 +57,44 @@ export class Access implements OnInit {
         this.loading = false;
       }
     });
+
+
+    
+  }
+onFileSelected(path: string) {
+  const name = path.split('/').pop() || path;
+  const existingIndex = this.openedFiles.findIndex(file => file.path === path);
+
+  if (existingIndex !== -1) {
+    this.activeFileIndex = existingIndex;
+  } else {
+    this.viewerService.getFileContent(this.viewerId, path).subscribe({
+      next: (data) => {
+        const newFile: OpenedFile = { path, name, content: data };
+        this.openedFiles.push(newFile);
+        this.activeFileIndex = this.openedFiles.length - 1;
+        this.toastr.success(`Opened file: ${name}`, 'Success');
+      },
+      error: (err) => {
+  let errorMsg = 'Unknown error occurred.';
+
+  try {
+    const parsed = typeof err.error === 'string' ? JSON.parse(err.error) : err.error;
+    errorMsg = parsed?.error || errorMsg;
+  } catch (e) {
+    console.error('Error parsing backend error:', e);
   }
 
-  onFileSelected(path: string) {
-    const name = path.split('/').pop() || path;
-    const existingIndex = this.openedFiles.findIndex(file => file.path === path);
+  const newFile: OpenedFile = { path, name, content: errorMsg };
+  this.openedFiles.push(newFile);
+  this.activeFileIndex = this.openedFiles.length - 1;
+  this.toastr.error(errorMsg, 'Error');
+}
 
-    if (existingIndex !== -1) {
-      this.activeFileIndex = existingIndex;
-    } else {
-      this.viewerService.getFileContent(this.viewerId, path).subscribe({
-        next: (data) => {
-          const newFile: OpenedFile = { path, name, content: data };
-          this.openedFiles.push(newFile);
-          this.activeFileIndex = this.openedFiles.length - 1;
-           this.toastr.success(`Opened file: ${name}`, 'Success');
-        },
-        error: (err) => {
-         const backendMessage = err?.error || 'Unknown error occurred.';
-    const newFile: OpenedFile = { path, name, content: backendMessage };
-    this.openedFiles.push(newFile);
-    this.activeFileIndex = this.openedFiles.length - 1;
-    //this.toastr.error(backendMessage, `Failed to open file: ${name}`);
-        }
-      });
-    }
+    });
   }
+}
+
 
   closeTab(index: number) {
     this.openedFiles.splice(index, 1);

@@ -6,8 +6,6 @@ import { ViewerLinkViewResponse } from '../models/viewer-link/viewer-link-view-r
 import { ViewerLinkUpdateRequest } from '../models/viewer-link/viewer-link-update-request';
 import { ErrorDTO } from '../models/viewer-link/error-dto';
 import { SuccessDTO } from '../models/viewer-link/success-dto';
-import { ViewerLinkAccessDTO } from '../models/viewer-link/viewer-link-access-dto';
-import { ViewerLinkContentResponse } from '../models/viewer-link/viewer-link-content-response';
 import { ViewerLinkDTO } from '../models/viewer-link/viewer-link-dto';
 import { PaginatedViewerLinks } from '../models/viewer-link/paginated-viewer-links ';
 
@@ -42,16 +40,6 @@ export class ViewerLinkService {
   // Delete a viewer link (mark as deleted)
   deleteViewerLink(viewerId: string): Observable<SuccessDTO | ErrorDTO> {
     return this.http.delete<SuccessDTO | ErrorDTO>(`${this.baseUrl}/${viewerId}`);
-  }
-
-  // Get viewer status (repo URL and views left)
-  getViewerStatus(viewerId: string): Observable<ViewerLinkAccessDTO | ErrorDTO> {
-    return this.http.get<ViewerLinkAccessDTO | ErrorDTO>(`${this.baseUrl}/viewer/${viewerId}`);
-  }
-
-  // Get repository content for viewer
-  getViewerContent(viewerId: string): Observable<ViewerLinkContentResponse | ErrorDTO> {
-    return this.http.get<ViewerLinkContentResponse | ErrorDTO>(`${this.baseUrl}/content/${viewerId}`);
   }
 
   // Get all viewer links (paginated)

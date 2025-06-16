@@ -3,4 +3,5 @@ export interface ViewerLinkRequest {
   repoUrl: string;
   maxViews: number;
   expiresInMinutes: number;
+  branchName:string;
 }
