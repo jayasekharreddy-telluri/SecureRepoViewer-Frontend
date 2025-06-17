@@ -1,22 +1,15 @@
-/* You can add global styles to this file, and also import other style files */
-
-
-/* Base Reset */
+/* Base reset */
 html, body {
   margin: 0;
   padding: 0;
   height: 100%;
-  background-color: #000000;
+  background: #000;
+  color: #fff;
+  font-family: 'Segoe UI', sans-serif;
+  overflow-x: hidden;
 }
 
-/* Ensure container fills viewport */
-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Prevent horizontal overflow */
-* {
+/* Universal box-sizing */
+*, *::before, *::after {
   box-sizing: border-box;
 }
