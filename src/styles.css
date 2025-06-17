@@ -1,5 +1,22 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
+/* Base Reset */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background-color: #000000;
+}
+
+/* Ensure container fills viewport */
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Prevent horizontal overflow */
+* {
+  box-sizing: border-box;
+}

@@ -1,11 +1,134 @@
-.login-card {
-  max-width: 350px;
-  margin: 2rem auto;
-  text-align: center;
-  padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+/* Base Styles */
+.login-wrapper {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1rem;
+  background: linear-gradient(to bottom right, #000000, #1a1a1a);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  gap: 2rem;
+  max-width: 1200px;
+  margin: auto;
 }
-button {
+
+.login-left,
+.login-right {
   width: 100%;
-  font-size: 1.1rem;
+  text-align: center;
+}
+
+.brand {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.logo {
+  width: 48px;
+  height: 48px;
+  margin-right: 1rem;
+}
+
+.brand-text h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.tagline {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #b0b0b0;
+}
+
+.main-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #ffffff;
+  margin: 1rem 0;
+}
+
+.description {
+  font-size: 1.05rem;
+  color: #d1d5db;
+  margin-bottom: 1.5rem;
+}
+
+.login-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #ffffff;
+  color: #000000;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 40px;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(255, 255, 255, 0.1);
+  transition: background 0.3s ease;
+}
+
+.login-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.footer-note {
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
+
+.illustration {
+  max-width: 100%;
+  height: auto;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.1));
+}
+
+/* Responsive (Tablet and Up) */
+@media (min-width: 768px) {
+  .login-wrapper {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4rem 2rem;
+    gap: 4rem;
+  }
+
+  .login-left,
+  .login-right {
+    width: 50%;
+    text-align: left;
+  }
+
+  .brand {
+    justify-content: flex-start;
+  }
+
+  .main-title {
+    font-size: 2.5rem;
+  }
+
+  .description {
+    font-size: 1.1rem;
+  }
+}
+
+/* Desktop Enhancements */
+@media (min-width: 1024px) {
+  .main-title {
+    font-size: 3rem;
+  }
+
+  .description {
+    font-size: 1.2rem;
+  }
+
+  .login-btn {
+    font-size: 1.1rem;
+    padding: 1rem 2rem;
+  }
 }
