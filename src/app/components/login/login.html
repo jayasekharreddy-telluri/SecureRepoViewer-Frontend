@@ -1,29 +1,58 @@
-<div class="login-wrapper">
-  <div class="login-left">
-    <div class="brand">
-      <img src="assets/shield-icon.png" alt="Logo" class="logo" />
-      <div class="brand-text">
-        <h2>PrivateRepo</h2>
-        <p class="tagline">SecureView</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PrivateRepo</title>
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="login-wrapper">
+      <div class="login-left">
+        <div class="brand">
+          <img src="assets/shield-icon.png" alt="Logo" class="logo" />
+          <div class="brand-text">
+            <h2>PrivateRepo</h2>
+            <p class="tagline">SecureView</p>
+          </div>
+        </div>
+
+        <h1 class="main-title">
+          Share Your Private<br />GitHub Repositories
+        </h1>
+
+        <p class="description">
+          Generate secure, read-only links to private GitHub repositories — ideal for sharing code with recruiters, clients, or teammates without giving access to push or edit.
+        </p>
+
+        <button class="login-btn" (click)="loginWithGitHub()">
+          <mat-icon>login</mat-icon> Login with GitHub
+        </button>
+
+        <p class="footer-note">Secure sharing made simple.</p>
+      </div>
+
+      <div class="login-right">
+        <img src="assets/secure.png" alt="Secure Illustration" class="illustration" />
       </div>
     </div>
 
-    <h1 class="main-title">
-      Share Your Private<br />GitHub Repositories
-    </h1>
-
-    <p class="description">
-      Securely share read-only access to your private GitHub repositories with expiring links.
-    </p>
-
-    <button class="login-btn" (click)="loginWithGitHub()">
-      <mat-icon>login</mat-icon> Login with GitHub
-    </button>
-
-    <p class="footer-note">Secure sharing made simple.</p>
+    <footer class="developer-footer">
+      <p>Developed by <strong>Jayasekhar Reddy Telluri</strong></p>
+      <div class="social-links">
+        <a href="https://github.com/jayasekharreddy-telluri/" target="_blank" title="GitHub">
+          <img src="assets/icons/github.png" alt="GitHub" />
+        </a>
+        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=jaytechy33@gmail.com" 
+           target="_blank" 
+           title="Send email to jaytechy33@gmail.com">
+          <img src="assets/icons/gmail.png" alt="Gmail" />
+        </a>
+        <a href="https://www.linkedin.com/in/tellurijayasekharreddy" target="_blank" title="LinkedIn">
+          <img src="assets/icons/linkedin.png" alt="LinkedIn" />
+        </a>
+      </div>
+    </footer>
   </div>
-
-  <div class="login-right">
-    <img src="assets/secure.png" alt="Secure Illustration" class="illustration" />
-  </div>
-</div>
+</body>
+</html>

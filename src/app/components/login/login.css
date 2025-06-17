@@ -1,4 +1,33 @@
-/* Base Styles */
+/* Base reset */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #000;
+  color: #fff;
+  font-family: 'Segoe UI', sans-serif;
+  overflow-x: hidden;
+}
+
+/* Universal box-sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Layout to fix large empty space */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.page-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Login Wrapper */
 .login-wrapper {
   display: flex;
   flex-direction: column;
@@ -9,6 +38,8 @@
   gap: 2rem;
   max-width: 1200px;
   margin: auto;
+  width: 100%;
+  flex-grow: 1;
 }
 
 .login-left,
@@ -51,9 +82,10 @@
 }
 
 .description {
-  font-size: 1.05rem;
+  font-size: 0.9rem;
   color: #d1d5db;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
+  line-height: 1.5;
 }
 
 .login-btn {
@@ -78,7 +110,7 @@
 
 .footer-note {
   margin-top: 2rem;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #9ca3af;
 }
 
@@ -88,7 +120,44 @@
   filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.1));
 }
 
-/* Responsive (Tablet and Up) */
+/* Footer Styles */
+.developer-footer {
+  margin-top: auto;
+  padding: 0.5rem 1rem;
+  background-color: #000;
+  color: #aaa;
+  font-size: 0.75rem;
+  border-top: 1px solid #1a1a1a;
+  text-align: center;
+  width: 100%;
+}
+
+.developer-footer p {
+  margin: 0;
+}
+
+.developer-footer .social-links {
+  margin-top: 0.4rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.developer-footer .social-links a img {
+  width: 20px;
+  height: 20px;
+  filter: brightness(0) invert(1);
+  opacity: 0.7;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.developer-footer .social-links a:hover img {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* Responsive */
 @media (min-width: 768px) {
   .login-wrapper {
     flex-direction: row;
@@ -113,18 +182,17 @@
   }
 
   .description {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 }
 
-/* Desktop Enhancements */
 @media (min-width: 1024px) {
   .main-title {
     font-size: 3rem;
   }
 
   .description {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
 
   .login-btn {
