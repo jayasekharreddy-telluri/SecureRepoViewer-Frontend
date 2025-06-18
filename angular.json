@@ -19,13 +19,18 @@
             "assets": [
               {
                 "glob": "**/*",
-                "input": "src/assets",           
+                "input": "src/assets",
                 "output": "assets"
               },
               {
                 "glob": "**/*",
                 "input": "node_modules/monaco-editor/min",
                 "output": "assets/monaco"
+              },
+              {
+                "glob": "static.json",
+                "input": "./",
+                "output": "./"
               }
             ],
             "styles": [
@@ -87,7 +92,7 @@
             "assets": [
               {
                 "glob": "**/*",
-                "input": "src/assets",           
+                "input": "src/assets",
                 "output": "assets"
               },
               {
