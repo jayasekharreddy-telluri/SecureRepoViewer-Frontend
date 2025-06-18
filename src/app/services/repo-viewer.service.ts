@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class RepoViewerService {
-  private baseUrl = 'http://localhost:8080/api/repo';
+  private baseUrl = 'https://github-share-backend-1.onrender.com/api/repo';
 
   constructor(private http: HttpClient) {}
 

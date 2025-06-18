@@ -9,7 +9,7 @@ import { BranchDTO } from '../models/branch.dto';
   providedIn: 'root'
 })
 export class RepoSearchService {
-  private baseUrl = 'http://localhost:8080/api';
+  private baseUrl = 'https://github-share-backend-1.onrender.com/api';
 
   constructor(private http: HttpClient) {}
 

@@ -13,7 +13,7 @@ import { PaginatedViewerLinks } from '../models/viewer-link/paginated-viewer-lin
   providedIn: 'root'
 })
 export class ViewerLinkService {
-  private baseUrl = 'http://localhost:8080/api/viewer-links';
+  private baseUrl = 'https://github-share-backend-1.onrender.com/api/viewer-links';
 
   constructor(private http: HttpClient) {}
 
