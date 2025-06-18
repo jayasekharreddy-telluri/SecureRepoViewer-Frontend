@@ -6,7 +6,6 @@
   "ng": "ng",
   "start": "ng serve",
   "build": "ng build",
-  "postbuild": "cp static.json dist/github-share-frontend/",
   "watch": "ng build --watch --configuration development",
   "test": "ng test"
 },

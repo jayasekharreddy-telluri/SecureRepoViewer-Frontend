@@ -29,8 +29,8 @@
               },
               {
                 "glob": "static.json",
-                "input": "./",
-                "output": "./"
+                "input": "src",
+                "output": "/"
               }
             ],
             "styles": [
