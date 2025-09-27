@@ -1,59 +1,40 @@
-# GithubShareFrontend
+# PrivyCode – Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
+[![Project Status](https://img.shields.io/badge/status-active-brightgreen)](https://github.com/jai/github-share-frontend)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![Angular Version](https://img.shields.io/badge/angular-16+-red)](https://angular.io/)
 
-## Development server
+**Author:** Jai  
+**Project Type:** Full-Stack Application (Frontend)  
+**Tech Stack:** Angular, TypeScript, Toastr, HTML, CSS  
 
-To start a local development server, run:
+---
 
-```bash
-ng serve
-```
+## Project Overview
+PrivyCode frontend is an Angular application that works with the backend to allow developers to securely share **read-only access** to private GitHub repositories via temporary viewer links.  
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+The frontend provides:  
+- Form validation for repository URLs  
+- Display of temporary viewer links with view counts and expiry  
+- In-app repository viewer (file tree + markdown rendering)  
+- Notifications using Toastr  
+- Real-time UI updates and error handling  
 
-## Code scaffolding
+---
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Features
+- **Form Validation:** Ensure only valid private GitHub URLs are accepted  
+- **Temporary Link Display:** Shows link, expiry, and views left  
+- **File Tree Viewer:** Browse repo structure without downloading  
+- **Markdown Rendering:** Render `.md` files in-app  
+- **Notifications:** Toastr notifications for actions like link creation, errors  
 
-```bash
-ng generate component component-name
-```
+---
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Tech Stack & Tools
+- **Framework:** Angular 16+  
+- **Languages:** TypeScript, HTML, CSS  
+- **UI Libraries:** Toastr, Angular Forms  
+- **Build Tool:** Angular CLI  
 
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+---
